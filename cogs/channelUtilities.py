@@ -56,74 +56,84 @@ class channelUtilities:
 			if author.id not in self.current_users[guild]:
 				if not name:
 					name = author.name
-				channel = await guild.create_voice_channel(name)
+				
+				# Move to specific category
+				temp_category = guild.get_channel(360990997716402177)
+				
+				if temp_category:
+					channel = await guild.create_voice_channel(name)
+					
+					await channel.edit(category = temp_category)
+					
+					if limit:
+						await channel.edit(user_limit = limit)
 
-				if limit:
-					await channel.edit(user_limit = limit)
+					await ctx.send(f'`Channel {name} created, it will expire in {time} minute(s)!`')
+					await author.move_to(channel)
+					'''Sets permissions for author'''
+					await channel.set_permissions(author, connect = True)
 
-				await ctx.send(f'`Channel {name} created, it will expire in {time} minute(s)!`')
-				await author.move_to(channel)
-				'''Sets permissions for author'''
-				await channel.set_permissions(author, connect = True)
+					await channel.set_permissions(ctx.message.guild.default_role, connect = False)
 
-				await channel.set_permissions(ctx.message.guild.default_role, connect = False)
+					'''Adds Author's ID and Channel to Lists'''
+					self.current_users[guild].append(author.id)
+					info = (author, channel, guild)
+					self.current_channels[guild].append(info)
+					
+					
+					''' Timing and Deletion Loop'''
+					while True:
 
-				'''Adds Author's ID and Channel to Lists'''
-				self.current_users[guild].append(author.id)
-				info = (author, channel, guild)
-				self.current_channels[guild].append(info)
+						ch = None
+						remaining = time*60
+						checkRate = 30
 
-				''' Timing and Deletion Loop'''
-				while True:
-
-					ch = None
-					remaining = time*60
-					checkRate = 30
-
-					''' Timing Loop '''
-					while remaining != 0:
-						try:
-							'''Check for Manual Channel Deletion'''
-							ch = await self.bot.wait_for("guild_channel_delete", check = lambda x: x.id == channel.id, timeout = checkRate)
-							break
-
-						except asyncio.TimeoutError:
-							remaining -= checkRate
-							if not channel.members:
-								'''Check if channel has users'''
-								ch = None
+						''' Timing Loop '''
+						while remaining != 0:
+							try:
+								'''Check for Manual Channel Deletion'''
+								ch = await self.bot.wait_for("guild_channel_delete", check = lambda x: x.id == channel.id, timeout = checkRate)
 								break
 
-					if ch is not None:
-						'''Deletes stored info if manually deleted'''
-						self.current_channels[guild].remove(info)
-						self.current_users[guild].remove(author.id)
+							except asyncio.TimeoutError:
+								remaining -= checkRate
+								if not channel.members:
+									'''Check if channel has users'''
+									ch = None
+									break
 
-					else:
-						if channel.members:
-							'''If channel has users, waits till they are gone'''
-							continue
+						if ch is not None:
+							'''Deletes stored info if manually deleted'''
+							self.current_channels[guild].remove(info)
+							self.current_users[guild].remove(author.id)
 
-						if author.id in self.current_users[guild]:
-							'''Channel Deletion and notifying the author'''
-							try:
-								await channel.delete()
-								self.current_channels[guild].remove(info)
-								self.current_users[guild].remove(author.id)
-								await ctx.send(author.mention + " your channel has expired")
+						else:
+							if channel.members:
+								'''If channel has users, waits till they are gone'''
+								continue
 
-							except discord.NotFound:
-								'''Deletes information if Discord 404's'''
-								self.current_channels[guild].remove(info)
-								self.current_users[guild].remove(author.id)
+							if author.id in self.current_users[guild]:
+								'''Channel Deletion and notifying the author'''
+								try:
+									await channel.delete()
+									self.current_channels[guild].remove(info)
+									self.current_users[guild].remove(author.id)
+									await ctx.send(author.mention + " your channel has expired")
 
-					if not self.current_channels[guild]:
-						del self.current_channels[guild]
+								except discord.NotFound:
+									'''Deletes information if Discord 404's'''
+									self.current_channels[guild].remove(info)
+									self.current_users[guild].remove(author.id)
 
-					if not self.current_users[guild]:
-						del self.current_users[guild]
+						if not self.current_channels[guild]:
+							del self.current_channels[guild]
 
-					break
+						if not self.current_users[guild]:
+							del self.current_users[guild]
+
+						break
+				else:
+					await ctx.send('`Failed to find Temporary Category`')
 			else:
 				await ctx.send('`You already have a active channel`')
 		except discord.errors.Forbidden:
@@ -160,11 +170,5 @@ class channelUtilities:
 		else:
 			await ctx.send("`You don't currently have a channel!`")
 
-
-
-
 def setup(bot):
 	bot.add_cog(channelUtilities(bot))
-
-
-
