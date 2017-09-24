@@ -151,12 +151,6 @@ class channelUtilities:
 			for channel in self.current_channels[ctx.guild]:
 				if channel[0] == ctx.author:
 					await channel[1].delete()
-					self.current_channels[ctx.guild].remove(channel)
-					if not self.current_channels[ctx.guild]:
-						del self.current_channels[ctx.guild]
-					self.current_users[ctx.guild].remove(ctx.author)
-					if not self.current_channels[ctx.guild]:
-						del self.current_channels[ctx.guild]
 					await ctx.send('`Your channel has been deleted`')
 		else:
 			await ctx.send("`You don't currently have a channel!`")
