@@ -36,7 +36,7 @@ class channelUtilities:
 
 		if ctx.guild not in self.current_users:
 			self.current_users[ctx.guild] = list()
-			self.current_users[ctx.guild] = list()
+			self.current_channels[ctx.guild] = list()
 
 		'''Time input Verification'''
 		if len(time) > 4:
@@ -62,6 +62,10 @@ class channelUtilities:
 				
 				if temp_category:
 					channel = await guild.create_voice_channel(name)
+					
+					# Little Hacky but needed to avoid position out of bounds exception occuring
+					# Sets the position relative to the category prior to setting channels category
+					await channel.edit(position = len(temp_category.channels))
 					
 					await channel.edit(category = temp_category)
 					
