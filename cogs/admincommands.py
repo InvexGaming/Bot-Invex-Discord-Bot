@@ -6,8 +6,8 @@ from .utils import checks
 
 """A cog which allows owners echo text via the bot"""
 
-class echo:
-	"""Echo Cog"""
+class admincommands:
+	"""Administrator commands (not for Forgotten)"""
 	
 	def __init__(self, bot):
 		self.bot = bot
@@ -15,11 +15,12 @@ class echo:
 	@commands.command(name='echo', aliases=['e'], hidden=True)
 	@checks.is_owner()
 	async def echo(self, ctx):
+		'''Echos input to channel from Bot'''
 		message = ctx.message.content
 		prefix_stripped = False
 		
-		if message.startswith('?echo '):
-			message = message[len('?echo '):]
+		if message.startswith('!echo '):
+			message = message[len('!echo '):]
 			prefix_stripped = True
 		
 		if message.startswith('?e '):
@@ -29,44 +30,25 @@ class echo:
 		if not prefix_stripped:
 			await ctx.send('`You cannot echo an empty message.`')
 		else:
-			await ctx.send('`Enter a channel id`')
-			chanid = await self.bot.wait_for('message')
-			channel = ctx.guild.get_channel(int(chanid.content))
-			await channel.send(message)
-
-	@commands.command(aliases = ['eh'])
-	@checks.is_owner()
-	async def echohere(self, ctx):
-		message = ctx.message.content
-		prefix_stripped = False
-		
-		if message.startswith('?echohere '):
-			message = message[len('?echohere '):]
-			prefix_stripped = True
-		
-		if message.startswith('?eh '):
-			message = message[len('?eh '):]
-			prefix_stripped = True
-			
-		if not prefix_stripped:
-			await ctx.send('`You cannot echo an empty message.`')
-		else:
 			await ctx.message.channel.purge(limit=1)
 			await ctx.send(message)
 
-	
-
 	@commands.command(hidden=True)
+	#@checks.owner_or_permissions(manage_messages=True)
 	@checks.is_owner()
 	async def purge(self, ctx, number: int):
 		'''Purge messages'''
-		await ctx.message.channel.purge(limit=(number+1))
+		def is_pinned(m):
+			return m.pinned == False
+
+		await ctx.message.channel.purge(limit=(number+1), check = is_pinned)
 		await ctx.send(f'`{number} messages purged!`')
 
 	@commands.command(hidden=True)
+	#@checks.owner_or_permissions(manage_messages=True)
 	@checks.is_owner()
 	async def purgeuser(self, ctx, user : discord.Member, number: int):
-		'''Purge messages'''
+		'''Purge specific user messages'''
 		def is_user(m):
 			return m.author == user
 
@@ -75,4 +57,4 @@ class echo:
 			
 			
 def setup(bot):
-	bot.add_cog(echo(bot))
+	bot.add_cog(admincommands(bot))

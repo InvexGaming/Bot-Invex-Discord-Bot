@@ -31,5 +31,9 @@ class Remarks:
 		'''List a Quote!'''
 		await ctx.send(ctx.message.author.mention + ' ' + randchoice(self.quotes))
 
+	@commands.command()
+	async def dotheroar(self,ctx):
+		await ctx.send('https://giphy.com/gifs/shrek-qFsHUsuBMQemQ')
+
 def setup(bot):
 	bot.add_cog(Remarks(bot))
