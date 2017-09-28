@@ -19,7 +19,7 @@ def get_prefix(bot, msg):
     """A callable Prefix for our bot. This could be edited to allow per server prefixes."""
     
     # Notice how you can use spaces in prefixes. Try to keep them simple though.
-    prefixes = ['!']
+    prefixes = [config['DEFAULT']['PREFIX']]
 
     # Check to see if we are outside of a guild. e.g DM's etc.
     if msg.guild.id is None:
@@ -30,14 +30,12 @@ def get_prefix(bot, msg):
     return commands.when_mentioned_or(*prefixes)(bot, msg)
 
 #inital Cog's Load
-initial_extensions = ('cogs.simple',
-                      'cogs.randomdiscordgames',
-                      'cogs.members',
-                      'cogs.owner',
-                      'cogs.insult',
-                      'cogs.error_handler',
-                      'cogs.channelUtilities',
-					  'cogs.echo')
+initial_extensions =('cogs.cogtools',
+                     'cogs.admincommands',
+                     'cogs.error_handler',
+                     'cogs.channelUtilities', 
+                     'cogs.members',
+                     'cogs.remarks')
                       
 bot = commands.Bot(command_prefix=get_prefix, description=description)
 
