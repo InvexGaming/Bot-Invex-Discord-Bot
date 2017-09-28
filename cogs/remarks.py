@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from random import choice as randchoice
 import os
+from .utils import checks
 
 class Remarks:
 
@@ -10,7 +11,6 @@ class Remarks:
 	def __init__(self,bot):
 		self.bot = bot
 		self.insults = open("data/insults.txt").read().splitlines()
-		self.quotes = open("data/quotes.txt").read().splitlines()
 
 	@commands.command(name='insult', aliases=['roast'], pass_context = True, no_pm = True)
 	async def insult(self, ctx, user : discord.Member = None):
@@ -29,11 +29,39 @@ class Remarks:
 	@commands.command(name='quote', pass_context = True, no_pm = True)
 	async def quote(self, ctx):
 		'''List a Quote!'''
-		await ctx.send(ctx.message.author.mention + ' ' + randchoice(self.quotes))
+		quotes = open("data/quotes.txt").read().splitlines()
+		await ctx.send(randchoice(quotes))
+	
+	@commands.command(aliases =['addquote'])
+	@checks.is_owner()
+	async def addQuote(self, ctx):
+		
+		message = ctx.message.content
+		prefix_stripped = False
+		
+		if message.startswith('?addquote '):
+			message = message[len('?addquote '):]
+			prefix_stripped = True
+
+		if not prefix_stripped:
+			await ctx.send('`You cannot quote an empty message.`')
+		else:
+			with open("data/quotes.txt", "a") as text_file:
+				text_file.write(f"'{message}'\n")
+			await ctx.send('`Quote added!`')
+
+	'''GENERIC SHITTY CHAT MEMES/COMMANDS'''
 
 	@commands.command()
 	async def dotheroar(self,ctx):
 		await ctx.send('https://giphy.com/gifs/shrek-qFsHUsuBMQemQ')
+
+	@commands.command()
+	async def panic(self,ctx):
+		await ctx.send(':rotating_light: EVERYTHING IS BROKEN :rotating_light:')
+		await ctx.send(':rotating_light: CALL THE COPS :rotating_light:')
+		await ctx.send(':rotating_light: SHUT DOWN EVERYTHING :rotating_light:')
+		await ctx.send(':rotating_light: I NEED AN ADULT :rotating_light:')
 
 def setup(bot):
 	bot.add_cog(Remarks(bot))
