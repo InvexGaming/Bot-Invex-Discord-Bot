@@ -35,7 +35,8 @@ initial_extensions =('cogs.cogtools',
                      'cogs.channelUtilities', 
                      'cogs.members',
                      'cogs.remarks',
-                     'cogs.randomdiscordgames')
+                     'cogs.randomdiscordgames',
+                     'cogs.invexforumsync')
                       
 bot = commands.Bot(command_prefix=get_prefix, description=description)
 
