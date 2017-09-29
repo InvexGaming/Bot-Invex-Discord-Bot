@@ -1,2 +1,2 @@
 # BotInvexDiscordBot
-Cog Reformat of the Invex Discord Bot
+Bot for Invex Gaming Discord Server
