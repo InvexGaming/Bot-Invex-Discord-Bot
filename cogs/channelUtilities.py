@@ -19,16 +19,16 @@ class channelUtilities:
 	@commands.group(aliases = ['ch'])
 	@checks.no_pm()
 	async def channel(self, ctx):
-		'''For help on channel commands, use !help channel'''
+		'''For help on channel commands, use: help channel'''
 		if ctx.invoked_subcommand is None:
-			ctx.message.content = "!help channel"
+			ctx.message.content = config['DEFAULT']['PREFIX'] + "help channel"
 			await self.bot.process_commands(ctx.message)
 
 	@checks.chcreate_or_permissions(manage_channels = True)
 	@channel.command(aliases = ['cr'])
 	@checks.no_pm()
 	async def create(self, ctx, time : str, limit : int, *, name : str):
-		'''Creates a temp channel; Usage !channel create {time} {maxusers} {name}
+		'''Creates a temp channel; Usage channel create {time} {maxusers} {name}
 		Parameters:
 		{time} = Time channel will exist for;
 		{limit} = amount of players able to join the channel
@@ -146,7 +146,7 @@ class channelUtilities:
 	@channel.command()
 	@checks.no_pm()
 	async def delete(self, ctx):
-		'''Delete your temp channel; usage !channel delete'''
+		'''Delete your temp channel; usage channel delete'''
 		if ctx.author.id in self.current_users[ctx.guild]:
 			for channel in self.current_channels[ctx.guild]:
 				if channel[0] == ctx.author:
@@ -158,7 +158,7 @@ class channelUtilities:
 	@channel.command()
 	@checks.no_pm()
 	async def setusers(self, ctx, *, users: discord.Member):
-		'''Set allowed users in channel; usage !ch setusers {@user} {@user} ...'''
+		'''Set allowed users in channel; usage ch setusers {@user} {@user} ...'''
 		if ctx.author.id in self.current_users[ctx.guild]:
 			for channel in self.current_channels[ctx.guild]:
 				if channel[0] == ctx.author:

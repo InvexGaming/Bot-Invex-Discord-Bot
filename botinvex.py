@@ -2,17 +2,13 @@ import discord
 from discord.ext import commands
 
 import sys, traceback
-import configparser
 
-# Parse config
-config = configparser.ConfigParser()
-config.sections()
-config.read('config.ini')
+# Get Config
+import config
+config = config.GetConfig()
 
 # Settings
-TOKEN = config['DEFAULT']['TOKEN']
-CLIENTID = config['DEFAULT']['CLIENTID']
-INVITELINK = 'https://discordapp.com/oauth2/authorize?&client_id=' + str(CLIENTID) + '&scope=bot&permissions=0'
+INVITELINK = 'https://discordapp.com/oauth2/authorize?&client_id=' + str(config['DEFAULT']['CLIENTID']) + '&scope=bot&permissions=0'
 description = '''Bot Invex is a Discord bot created by Byte#5322 and ev0ked#9780.'''
 
 def get_prefix(bot, msg):
@@ -57,4 +53,4 @@ async def on_ready():
     print(f'Successfully logged in and connected!')
 
     
-bot.run(TOKEN, bot=True, reconnect=True)
+bot.run(config['DEFAULT']['TOKEN'], bot=True, reconnect=True)

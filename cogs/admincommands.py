@@ -4,6 +4,10 @@ from discord.ext import commands
 
 from .utils import checks
 
+# Get Config
+import config
+config = config.GetConfig()
+
 """A cog which allows owners echo text via the bot"""
 
 class admincommands:
@@ -19,12 +23,12 @@ class admincommands:
 		message = ctx.message.content
 		prefix_stripped = False
 		
-		if message.startswith('!echo '):
-			message = message[len('!echo '):]
+		if message.startswith(config['DEFAULT']['PREFIX'] + 'echo '):
+			message = message[len(config['DEFAULT']['PREFIX'] + 'echo '):]
 			prefix_stripped = True
 		
-		if message.startswith('?e '):
-			message = message[len('?e '):]
+		if message.startswith(config['DEFAULT']['PREFIX'] + 'e '):
+			message = message[len(config['DEFAULT']['PREFIX'] + 'e '):]
 			prefix_stripped = True
 			
 		if not prefix_stripped:
