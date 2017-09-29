@@ -30,7 +30,7 @@ class admincommands:
 		if not prefix_stripped:
 			await ctx.send('`You cannot echo an empty message.`')
 		else:
-			await ctx.message.channel.purge(limit=1)
+			await ctx.message.delete()
 			await ctx.send(message)
 
 	@commands.command(hidden=True)
