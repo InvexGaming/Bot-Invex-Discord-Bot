@@ -16,7 +16,7 @@ class RandomDiscordGame:
         while not bot.is_closed():
             randIndex = random.randint(0, len(self.discordGames) - 1)
             await bot.change_presence(game=discord.Game(name=self.discordGames[randIndex]))
-            await asyncio.sleep(60*10) #10 minutes
+            await asyncio.sleep(10*60) #10 minutes
     
 def setup(bot):
     bot.add_cog(RandomDiscordGame(bot))
