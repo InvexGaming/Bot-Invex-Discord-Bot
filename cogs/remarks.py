@@ -63,5 +63,16 @@ class Remarks:
 		await ctx.send(':rotating_light: SHUT DOWN EVERYTHING :rotating_light:')
 		await ctx.send(':rotating_light: I NEED AN ADULT :rotating_light:')
 
+	@commands.command()
+	async def n8egirl(self,ctx):
+		await ctx.send(":man_in_tuxedo: n8's e-girl? What one?")
+		await ctx.send(':raising_hand: Elaina?')
+		await ctx.send(':raising_hand: Darcye?')
+		await ctx.send(':raising_hand: Sarah?')
+
+	@commands.command(aliases=['ree'])
+	async def reeeeee(self,ctx):
+		await ctx.send(open("data/images/ree.gif"))
+
 def setup(bot):
 	bot.add_cog(Remarks(bot))
