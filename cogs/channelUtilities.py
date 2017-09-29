@@ -61,6 +61,7 @@ class channelUtilities:
 				temp_category = guild.get_channel(360990997716402177)
 				
 				if temp_category:
+					# Text Channel Creation
 					channel = await guild.create_voice_channel(name)
 					
 					# Little Hacky but needed to avoid position out of bounds exception occuring
@@ -82,8 +83,7 @@ class channelUtilities:
 					'''Adds Author's ID and Channel to Lists'''
 					self.current_users[guild].append(author.id)
 					info = (author, channel, guild)
-					self.current_channels[guild].append(info)
-					
+					self.current_channels[guild].append(info)					
 					
 					''' Timing and Deletion Loop'''
 					while True:

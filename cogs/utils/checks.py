@@ -93,9 +93,6 @@ def is_in_servers(*server_ids):
         return server.id in server_ids
     return commands.check(predicate)
 
-def is_lounge_cpp():
-    return is_in_servers('153712751779250176')
-
 def chcreate_or_permissions(**perms):
         def predicate(ctx):
             return role_or_permissions(ctx, lambda r: r.name == 'Veteran', **perms)
