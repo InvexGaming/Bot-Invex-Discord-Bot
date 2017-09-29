@@ -19,7 +19,7 @@ def get_prefix(bot, msg):
     
     # Notice how you can use spaces in prefixes. Try to keep them simple though.
     prefixes = [config['DEFAULT']['PREFIX']]
-
+    
     # Check to see if we are outside of a guild. e.g DM's etc.
     if msg.guild.id is None:
         # Only allow ? to be used in DMs

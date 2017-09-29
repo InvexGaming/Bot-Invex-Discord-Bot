@@ -4,7 +4,7 @@ import configparser
 
 # Parse config
 def GetConfig():
-  config = configparser.ConfigParser()
-  config.sections()
-  config.read('config.ini')
-  return config
+    config = configparser.ConfigParser()
+    config.sections()
+    config.read('config.ini')
+    return config
