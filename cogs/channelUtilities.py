@@ -4,6 +4,10 @@ from discord.ext import commands
 
 from .utils import checks
 
+# Get Config
+import config
+config = config.GetConfig()
+
 class channelUtilities:
 
 	def __init__(self, bot):

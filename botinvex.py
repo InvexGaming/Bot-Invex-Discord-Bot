@@ -1,7 +1,10 @@
 import discord
 from discord.ext import commands
 
-import sys, traceback
+import os, sys, traceback
+
+# Set CWD to script directory
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Get Config
 import config

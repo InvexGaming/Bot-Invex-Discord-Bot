@@ -72,7 +72,7 @@ class Remarks:
 
 	@commands.command(aliases=['ree'])
 	async def reeeeee(self,ctx):
-		await ctx.send(open("data/images/ree.gif"))
+		await ctx.send(file = discord.File(open("data/images/ree.gif", "rb")))
 
 def setup(bot):
 	bot.add_cog(Remarks(bot))
