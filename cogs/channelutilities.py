@@ -8,7 +8,7 @@ from .utils import checks
 import config
 config = config.GetConfig()
 
-class channelUtilities:
+class ChannelUtilities:
 
     def __init__(self, bot):
         self.bot = bot
@@ -173,4 +173,4 @@ class channelUtilities:
             await ctx.send("`You don't currently have a channel!`")
 
 def setup(bot):
-    bot.add_cog(channelUtilities(bot))
+    bot.add_cog(ChannelUtilities(bot))

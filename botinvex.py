@@ -32,7 +32,7 @@ def get_prefix(bot, msg):
 initial_extensions =('cogs.cogtools',
                      'cogs.admincommands',
                      'cogs.error_handler',
-                     'cogs.channelUtilities', 
+                     'cogs.channelutilities', 
                      'cogs.members',
                      'cogs.remarks',
                      'cogs.randomdiscordgames',
