@@ -39,9 +39,9 @@ class InvexForumSync:
             verified_forum_members = []
             for row in cur:
                 usergroups = set()
-                usergroups.add(row[1])
+                usergroups.add(int(row[1]))
                 if len(row[2]) != 0:
-                    usergroups.update(row[2].split(","))
+                    usergroups.update(list(map(int, row[2].split(",")))) #split by comma and convert to int list
                 
                 verified_forum_members.append(InvexForumMember(row[0], usergroups, row[3]))
                 
@@ -91,9 +91,9 @@ class InvexForumSync:
                     await self._sync_role(invex_guild, forum_member, discord_member, 41, 'VIP')
                     await self._sync_role(invex_guild, forum_member, discord_member, 21, 'Member')
         
-        
+            
             await asyncio.sleep(15*60) #15 minutes
-        
+
     async def _sync_role(self, guild, forum_member, discord_member, forum_group_id, target_role_name):
         
         target_role = discord.utils.get(guild.roles, name=target_role_name)
