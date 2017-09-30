@@ -95,7 +95,7 @@ def is_in_servers(*server_ids):
 
 def chcreate_or_permissions(**perms):
         def predicate(ctx):
-            return role_or_permissions(ctx, lambda r: r.name == 'Veteran', **perms)
+            return role_or_permissions(ctx, lambda r: r.name == 'VIP', **perms)
 
         return commands.check(predicate)
 
