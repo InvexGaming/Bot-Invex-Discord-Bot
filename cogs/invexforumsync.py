@@ -22,8 +22,8 @@ class InvexForumSync:
     def __init__(self, bot):
         bot.loop.create_task(self.sync(bot))
         
-    @commands.command(aliases = ['link','verfiy'])
-    async def verfiy(self, ctx):
+    @commands.command(aliases = ['link'])
+    async def verify(self, ctx):
         await ctx.send("**Want to receive your role/rank?**\nYou have to link your forum account and Discord account to receive your role.\nOur Bot will automatically update roles every 15 minutes.\n**Visit:** https://www.invexgaming.com.au/showthread.php?tid=8384")
 
     async def sync(self, bot):
