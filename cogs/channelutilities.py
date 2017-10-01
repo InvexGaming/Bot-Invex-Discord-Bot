@@ -15,7 +15,7 @@ class ChannelUtilities:
         self.current_users = dict()
         self.current_channels = dict()
 
-        #Initialises a Dictionary of lists for each guild#
+        #Initialises a Dictionary of lists for each guild
         for guild in self.bot.guilds:
             self.current_users[guild] = list()
             self.current_channels[guild] = list()
@@ -23,7 +23,7 @@ class ChannelUtilities:
     @commands.group(aliases = ['ch'])
     @checks.no_pm()
     async def channel(self, ctx):
-        #For help on channel commands, use: help channel#
+        #For help on channel commands, use: help channel
         if ctx.invoked_subcommand is None:
             ctx.message.content = config['DEFAULT']['PREFIX'] + "help channel"
             await self.bot.process_commands(ctx.message)
@@ -31,32 +31,44 @@ class ChannelUtilities:
     @checks.chcreate_or_permissions(manage_channels = True)
     @channel.command(aliases = ['cr'])
     @checks.no_pm()
-    async def create(self, ctx, time : str, limit : int, *, name : str):
+    async def create(self, ctx, time : str, limit : str, *, name : str):
         '''Creates a temp channel; Usage channel create {time} {maxusers} {name}
         Parameters:
-        {time} = Time channel will exist for;
-        {limit} = amount of players able to join the channel
-        {name} = name of the channel '''
+        {time} = Time channel will exist for in minutes (between 0 and 1440);
+        {limit} = amount of players able to join the channel (between 0 and 99). 0 indicating there is no limit.
+        {name} = name of the channel (max 32 characters) '''
 
         if ctx.guild not in self.current_users:
             self.current_users[ctx.guild] = list()
             self.current_channels[ctx.guild] = list()
-
-        #Time input Verification#
-        if len(time) > 4:
-            await ctx.send("Temporary channels can last at MOST a day! (1440 minutes)")
-            return
-        else:
+            
+        #Input Verification
+        errors = []
+        try:
             time = int(time)
-            if time > 1440:
-                await ctx.send("Temporary channels can last at MOST a day! (1440 minutes)")
-                return
+            if time < 0 or time > 1440:
+                errors.append("`Time must be a number between 0 and 1440 minutes.`")
+        except ValueError:
+            errors.append("`Time must be a number between 0 and 1440 minutes`")
 
-        if limit > 99:
-            await ctx.send("`User limit must be in between 0 - 99 users!`")
+        try:
+            limit = int(limit)
+            
+            if limit < 0 or limit > 99:
+                errors.append("`Limit must be a number between 0 and 99 users.`")
+        except ValueError:
+            errors.append("`Limit must be a number between 0 and 99 users.`")
+
+        if len(name) > 32:
+            errors.append("`Channel name must be at most 32 characters long.`")
+            
+        if len(errors) > 0: # Handle any errors
+            await ctx.send("\n".join(errors))
+            ctx.message.content = config['DEFAULT']['PREFIX'] + "help channel create"
+            await self.bot.process_commands(ctx.message)
             return
-
-        #Channel Creation#
+            
+        #Channel Creation
         try:
             guild = ctx.guild
             author = ctx.author
@@ -83,49 +95,49 @@ class ChannelUtilities:
 
                     await ctx.send(f'`Channel {name} created, it will expire in {time} minute(s)!`')
                     await author.move_to(channel)
-                    #Sets permissions for author#
+                    #Sets permissions for author
                     await channel.set_permissions(author, connect = True)
 
                     await channel.set_permissions(ctx.message.guild.default_role, connect = False)
 
-                    #Adds Author's ID and Channel to Lists#
+                    #Adds Author's ID and Channel to Lists
                     self.current_users[guild].append(author.id)
                     info = (author, channel, guild)
                     self.current_channels[guild].append(info)                    
                     
-                    # Timing and Deletion Loop#
+                    # Timing and Deletion Loop
                     while True:
 
                         ch = None
                         remaining = time*60
                         checkRate = 30
 
-                        # Timing Loop #
+                        # Timing Loop 
                         while remaining != 0:
                             try:
-                                #Check for Manual Channel Deletion#
+                                #Check for Manual Channel Deletion
                                 ch = await self.bot.wait_for("guild_channel_delete", check = lambda x: x.id == channel.id, timeout = checkRate)
                                 break
 
                             except asyncio.TimeoutError:
                                 remaining -= checkRate
                                 if not channel.members:
-                                    #Check if channel has users#
+                                    #Check if channel has users
                                     ch = None
                                     break
 
                         if ch is not None:
-                            #Deletes stored info if manually deleted#
+                            #Deletes stored info if manually deleted
                             self.current_channels[guild].remove(info)
                             self.current_users[guild].remove(author.id)
 
                         else:
                             if channel.members:
-                                #If channel has users, waits till they are gone#
+                                #If channel has users, waits till they are gone
                                 continue
 
                             if author.id in self.current_users[guild]:
-                                #Channel Deletion and notifying the author#
+                                #Channel Deletion and notifying the author
                                 try:
                                     await channel.delete()
                                     self.current_channels[guild].remove(info)
@@ -133,7 +145,7 @@ class ChannelUtilities:
                                     await ctx.send(author.mention + " your channel has expired")
 
                                 except discord.NotFound:
-                                    #Deletes information if Discord 404's#
+                                    #Deletes information if Discord 404's
                                     self.current_channels[guild].remove(info)
                                     self.current_users[guild].remove(author.id)
 
@@ -154,7 +166,7 @@ class ChannelUtilities:
     @channel.command()
     @checks.no_pm()
     async def delete(self, ctx):
-        #Delete your temp channel; usage channel delete#
+        #Delete your temp channel; usage channel delete
         if ctx.author.id in self.current_users[ctx.guild]:
             for channel in self.current_channels[ctx.guild]:
                 if channel[0] == ctx.author:
@@ -166,7 +178,7 @@ class ChannelUtilities:
     @channel.command(aliases = ['su'])
     @checks.no_pm()
     async def setusers(self, ctx, *users: discord.Member):
-        #Set allowed users in channel; usage ch setusers {@user} {@user} ...#
+        #Set allowed users in channel; usage ch setusers {@user} {@user} ...
         if ctx.author.id in self.current_users[ctx.guild]:
             for channel in self.current_channels[ctx.guild]:
                 if channel[0] == ctx.author:
