@@ -32,10 +32,10 @@ class Remarks:
         quotes = open("data/quotes.txt").read().splitlines()
         await ctx.send(randchoice(quotes))
     
-    @commands.command(aliases =['addquote'])
+    @commands.command(aliases =['addquote'], hidden=True)
     @checks.is_owner()
     async def addQuote(self, ctx):
-        
+        '''Add Quote to list of quotes'''
         message = ctx.message.content
         prefix_stripped = False
         
@@ -50,14 +50,16 @@ class Remarks:
                 text_file.write(f"'{message}'\n")
             await ctx.send('`Quote added!`')
 
-    '''GENERIC SHITTY CHAT MEMES/COMMANDS'''
+    # GENERIC SHITTY CHAT MEMES/COMMANDS
 
     @commands.command()
     async def dotheroar(self,ctx):
+        '''Roooooar!'''
         await ctx.send('https://giphy.com/gifs/shrek-qFsHUsuBMQemQ')
 
     @commands.command()
     async def panic(self,ctx):
+        '''SOUND THE ALARMS!@!'''
         await ctx.send(':rotating_light: EVERYTHING IS BROKEN :rotating_light:')
         await ctx.send(':rotating_light: CALL THE COPS :rotating_light:')
         await ctx.send(':rotating_light: SHUT DOWN EVERYTHING :rotating_light:')
@@ -65,6 +67,7 @@ class Remarks:
 
     @commands.command()
     async def n8egirl(self,ctx):
+        '''Approved by n8'''
         await ctx.send(":man_in_tuxedo: n8's e-girl? What one?")
         await ctx.send(':raising_hand: Elaina?')
         await ctx.send(':raising_hand: Darcye?')
@@ -72,6 +75,7 @@ class Remarks:
 
     @commands.command(aliases=['ree'])
     async def reeeeee(self,ctx):
+        '''reeeeee!'''
         await ctx.send(file = discord.File(open("data/images/ree.gif", "rb")))
 
 def setup(bot):

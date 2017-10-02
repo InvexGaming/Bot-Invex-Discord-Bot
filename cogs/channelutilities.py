@@ -23,6 +23,7 @@ class ChannelUtilities:
     @commands.group(aliases = ['ch'])
     @checks.no_pm()
     async def channel(self, ctx):
+        '''Used to manage temporary channels'''
         #For help on channel commands, use: help channel
         if ctx.invoked_subcommand is None:
             ctx.message.content = config['DEFAULT']['PREFIX'] + "help channel"
