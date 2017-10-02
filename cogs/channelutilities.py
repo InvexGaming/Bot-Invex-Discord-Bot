@@ -164,7 +164,12 @@ class ChannelUtilities:
         except discord.errors.Forbidden:
             await ctx.send('`This command is disabled in this server!`')
 
-    @channel.command()
+    @create.error
+    async def create_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("`You did not provide the '" + error.param + "' parameter.`")
+            
+    @channel.command(aliases = ['del'])
     @checks.no_pm()
     async def delete(self, ctx):
         #Delete your temp channel; usage channel delete
