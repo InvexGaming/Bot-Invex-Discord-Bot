@@ -18,24 +18,15 @@ class admincommands:
         
     @commands.command(name='echo', aliases=['e'], hidden=True)
     @checks.is_owner()
-    async def echo(self, ctx):
-        '''Echos input to channel from Bot'''
-        message = ctx.message.content
-        prefix_stripped = False
-        
-        if message.startswith(config['DEFAULT']['PREFIX'] + 'echo '):
-            message = message[len(config['DEFAULT']['PREFIX'] + 'echo '):]
-            prefix_stripped = True
-        
-        if message.startswith(config['DEFAULT']['PREFIX'] + 'e '):
-            message = message[len(config['DEFAULT']['PREFIX'] + 'e '):]
-            prefix_stripped = True
-        
-        if not prefix_stripped:
-            await ctx.send('`You cannot echo an empty message.`')
-        else:
-            await ctx.message.delete()
-            await ctx.send(message)
+    async def echo(self, ctx, *, input : str):
+        await ctx.send(input)
+        await ctx.message.delete()
+
+    @echo.error
+    async def echo_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            if error.param == 'input':
+                await ctx.send("`You cannot echo an empty message.`")
 
     @commands.command(hidden=True)
     #@checks.owner_or_permissions(manage_messages=True)
