@@ -32,24 +32,19 @@ class Remarks:
         quotes = open("data/quotes.txt").read().splitlines()
         await ctx.send(randchoice(quotes))
     
-    @commands.command(aliases =['addquote'], hidden=True)
+    @commands.command(hidden=True)
     @checks.is_owner()
-    async def addQuote(self, ctx):
+    async def addquote(self, ctx, quote : str):
         '''Add Quote to list of quotes'''
-        message = ctx.message.content
-        prefix_stripped = False
-        
-        if message.startswith('?addquote '):
-            message = message[len('?addquote '):]
-            prefix_stripped = True
+        with open("data/quotes.txt", "a") as text_file:
+            text_file.write(f"'{quote}'\n")
+        await ctx.send('`Quote added!`')
 
-        if not prefix_stripped:
-            await ctx.send('`You cannot quote an empty message.`')
-        else:
-            with open("data/quotes.txt", "a") as text_file:
-                text_file.write(f"'{message}'\n")
-            await ctx.send('`Quote added!`')
-
+    @addquote.error
+    async def create_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("`You did not provide the '" + error.param + "' parameter.`")
+            
     # GENERIC SHITTY CHAT MEMES/COMMANDS
 
     @commands.command()
