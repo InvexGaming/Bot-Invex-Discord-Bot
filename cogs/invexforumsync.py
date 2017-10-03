@@ -85,32 +85,42 @@ class InvexForumSync:
                     await discord_member.edit(nick = forum_member.username)
                     
                     # Assign Roles/Permissions
-                    await self._sync_role(invex_guild, forum_member, discord_member, 51, 'Staff')
-                    await self._sync_role(invex_guild, forum_member, discord_member, 95, 'Head Administrator')
-                    await self._sync_role(invex_guild, forum_member, discord_member, 31, 'Server Administrator')
-                    await self._sync_role(invex_guild, forum_member, discord_member, 52, 'Surf Admin')
-                    await self._sync_role(invex_guild, forum_member, discord_member, 66, 'Jailbreak Admin')
-                    await self._sync_role(invex_guild, forum_member, discord_member, 72, '1v1 Admin')
-                    await self._sync_role(invex_guild, forum_member, discord_member, 55, 'Veteran')
-                    await self._sync_role(invex_guild, forum_member, discord_member, 11, 'Senior Member')
-                    await self._sync_role(invex_guild, forum_member, discord_member, 41, 'VIP')
-                    await self._sync_role(invex_guild, forum_member, discord_member, 21, 'Member')
+                    forum_groups = [   ('Staff', 51), 
+                                       ('Head Administrator', 95), 
+                                       ('Server Administrator', 31), 
+                                       ('Surf Admin', 52), 
+                                       ('Jailbreak Admin', 66), 
+                                       ('1v1 Admin', 72), 
+                                       ('Veteran', 55), 
+                                       ('Senior Member', 11), 
+                                       ('VIP', 41), 
+                                       ('Member', 21)
+                                   ]
+                                   
+                    roles_to_add = []
+                    roles_to_remove = []
+                    
+                    # Iterate through various forum groups
+                    for forum_group in forum_groups:
+                        target_role = discord.utils.get(invex_guild.roles, name=forum_group[0])
+        
+                        discord_member_roles = discord_member.roles[1:] #exclude @everyone role
+                        
+                        if (forum_group[1] in forum_member.usergroups) and (target_role not in discord_member_roles):
+                            # Add role to add list
+                            roles_to_add.append(target_role)
+                        elif (forum_group[1] not in forum_member.usergroups) and (target_role in discord_member_roles):
+                            # Add role to remove list
+                            roles_to_remove.append(target_role)
+                    
+                    # Add roles/remove roles from discord member if needed
+                    if len(roles_to_add) > 0:
+                        await discord_member.add_roles(*roles_to_add)
+                    if len(roles_to_remove) > 0:
+                        await discord_member.remove_roles(*roles_to_remove)
         
             
             await asyncio.sleep(15*60) #15 minutes
-
-    async def _sync_role(self, guild, forum_member, discord_member, forum_group_id, target_role_name):
-        
-        target_role = discord.utils.get(guild.roles, name=target_role_name)
-        
-        discord_member_roles = discord_member.roles[1:] #exclude @everyone role
-        
-        if (forum_group_id in forum_member.usergroups) and (target_role not in discord_member_roles):
-            # Add missing role
-            await discord_member.add_roles(target_role)
-        elif (forum_group_id not in forum_member.usergroups) and (target_role in discord_member_roles):
-            # Remove role they shouldn't have
-            await discord_member.remove_roles(target_role)
 
 def setup(bot):
     bot.add_cog(InvexForumSync(bot))
