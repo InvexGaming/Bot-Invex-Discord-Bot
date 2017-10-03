@@ -12,10 +12,15 @@ class MembersCog:
         """Says when a member joined."""
         await ctx.send(f'{member.display_name} joined on {member.joined_at}')
 
-    @commands.command(name='bot')
+    @joined.error
+    async def create_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("`You did not provide the '" + error.param + "' parameter.`")
+    
+    @commands.command(name='bot', aliases=['ping'])
     async def _bot(self, ctx):
-        """Is the bot cool?"""
-        await ctx.send('Yes, the bot is cool.')
+        """Ping bot to see if it is alive."""
+        await ctx.send('Yes, I\'m alive.')
 
     @commands.command(name='top_role', aliases=['toprole'])
     @commands.guild_only()
