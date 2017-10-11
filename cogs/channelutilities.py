@@ -201,11 +201,6 @@ class ChannelUtilities:
                 
         except discord.errors.Forbidden:
             await ctx.send('`This command is disabled in this server!`')
-
-    @create.error
-    async def create_handler(self, ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("`You did not provide the '" + error.param + "' parameter.`")
     
     async def _timing_deletion_loop(self):
         check_rate = 30
@@ -291,11 +286,6 @@ class ChannelUtilities:
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
     
-    @delete.error
-    async def delete_handler(self, ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("`You did not provide the '" + error.param + "' parameter.`")
-    
     @channel.command(aliases = ['su'])
     @checks.no_pm()
     async def setusers(self, ctx, type : str, *users: discord.Member):
@@ -324,9 +314,11 @@ class ChannelUtilities:
                         await ctx.send("`Text channel permissions added for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
-    
+       
+    @create.error
+    @delete.error
     @setusers.error
-    async def setusers_handler(self, ctx, error):
+    async def generic_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send("`You did not provide the '" + error.param + "' parameter.`")
 def setup(bot):
