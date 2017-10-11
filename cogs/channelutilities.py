@@ -21,8 +21,8 @@ class ChannelUtilities:
         self.text_users = dict()
         self.text_channels = dict()
         
-        self.non_alphanumeric_pattern = re.compile('[^a-zA-Z0-9_]+', re.UNICODE)
-        self.alphanumeric_pattern = re.compile('[a-zA-Z0-9_]+', re.UNICODE)
+        self.non_alphanumeric_pattern = re.compile('[^a-zA-Z0-9_ ]+', re.UNICODE)
+        self.alphanumeric_pattern = re.compile('[a-zA-Z0-9_ ]+', re.UNICODE)
         
         self.Info = namedtuple('Info', 'ctx author channel expiry')
         
@@ -125,7 +125,14 @@ class ChannelUtilities:
                     author: discord.PermissionOverwrite(connect = True)
                 }
                 
-                voice_channel = await guild.create_voice_channel(name = name, category = voice_category, overwrites = voice_overwrites)
+                alphanumeric_name = self.non_alphanumeric_pattern.sub('', name) #remove all non-alphanumeric chars
+                
+                # Confirm Final name is alphanumeric, otherwise use placeholder name
+                if not self.alphanumeric_pattern.match(alphanumeric_name):
+                    await ctx.send("`Provided temporary voice channel name contained invalid characters, using default name instead.`")
+                    alphanumeric_name = f'temp_voice_{len(voice_category.channels) + 1}'
+                    
+                voice_channel = await guild.create_voice_channel(name = alphanumeric_name, category = voice_category, overwrites = voice_overwrites)
                 
                 # Pause after creating channels
                 await asyncio.sleep(1)
@@ -134,7 +141,7 @@ class ChannelUtilities:
                 if limit:
                     await voice_channel.edit(user_limit = limit)
                 
-                await ctx.send(f'`Voice channel \'{name}\' created, it will expire in {time} minute(s)!`')    
+                await ctx.send(f'`Voice channel \'{alphanumeric_name}\' created, it will expire in {time} minute(s)!`')    
                 
                 # Move author to voice channel if they are connected to voice
                 if author.voice is not None:
@@ -171,11 +178,12 @@ class ChannelUtilities:
 
                 alphanumeric_name = name.replace(' ', '_') #turn spaces into underscores
                 alphanumeric_name = self.non_alphanumeric_pattern.sub('', alphanumeric_name) #remove all non-alphanumeric chars
-
+                
                 # Confirm Final name is alphanumeric, otherwise use placeholder name
                 if not self.alphanumeric_pattern.match(alphanumeric_name):
-                    alphanumeric_name = f'temp_room_{len(text_category.channels) + 1}'
-
+                    await ctx.send("`Provided temporary text channel name contained invalid characters, using default name instead.`")
+                    alphanumeric_name = f'temp_text_{len(text_category.channels) + 1}'
+                
                 text_channel = await guild.create_text_channel(name = alphanumeric_name, category = text_category, overwrites = text_overwrites)
 
                 # Pause after creating channels
@@ -264,6 +272,8 @@ class ChannelUtilities:
             if ctx.author.id in self.voice_users[ctx.guild]:
                 for info in self.voice_channels[ctx.guild]:
                     if info.author == ctx.author:
+                        self.voice_channels[ctx.guild].remove(info)
+                        self.voice_users[ctx.guild].remove(info.author.id)
                         await info.channel.delete() # delete channel
                         await ctx.send('`Your temporary voice channel has been deleted.`')
             else:
@@ -274,6 +284,8 @@ class ChannelUtilities:
             if ctx.author.id in self.text_users[ctx.guild]:
                 for info in self.text_channels[ctx.guild]:
                     if info.author == ctx.author:
+                        self.text_channels[ctx.guild].remove(info)
+                        self.text_users[ctx.guild].remove(info.author.id)
                         await info.channel.delete() # delete channel
                         await ctx.send('`Your temporary text channel has been deleted.`')
             else:
