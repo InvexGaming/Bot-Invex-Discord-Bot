@@ -29,7 +29,6 @@ class admincommands:
                 await ctx.send("`You cannot echo an empty message.`")
 
     @commands.command(hidden=True)
-    #@checks.owner_or_permissions(manage_messages=True)
     @checks.is_owner()
     async def purge(self, ctx, number: int):
         '''Purge messages'''
@@ -40,7 +39,6 @@ class admincommands:
         await ctx.send(f'`{number} messages purged!`')
 
     @commands.command(hidden=True)
-    #@checks.owner_or_permissions(manage_messages=True)
     @checks.is_owner()
     async def purgeuser(self, ctx, user : discord.Member, number: int):
         '''Purge specific user messages'''
@@ -50,6 +48,12 @@ class admincommands:
         await ctx.message.channel.purge(limit=(number+1), check = is_user)
         await ctx.send(f'`{number} messages purged!`')
 
+    
+    @purge.error
+    @purgeuser.error
+    async def generic_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("`You did not provide the '" + error.param + "' parameter.`")
         
 def setup(bot):
     bot.add_cog(admincommands(bot))
