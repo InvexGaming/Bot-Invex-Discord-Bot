@@ -314,10 +314,44 @@ class ChannelUtilities:
                         await ctx.send("`Text channel permissions added for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
-       
+
+    @channel.command(aliases = ['ru'])
+    @checks.no_pm()
+    async def removeusers(self, ctx, type : str, *users: discord.Member):
+        if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
+            await ctx.send("`Type must be either 'voice', 'text', or 'both'.`")
+            return
+        
+        if type in ('voice', 'v', 'both', 'b'):
+            #Set allowed users in channel
+            if ctx.author.id in self.voice_users[ctx.guild]:
+                for info in self.voice_channels[ctx.guild]:
+                    if info.author == ctx.author:
+                        for user in users:
+                            await info.channel.set_permissions(user, connect = False)
+                            # Move user out of voice channel to a default voice channel if they are connected to voice
+                            if user.voice is not None:
+                                default_voice_channel = ctx.guild.get_channel(int(config['CHANNELUTILITIES']['DEFAULT_VOICE_CHANNEL_ID']))
+                                await user.move_to(default_voice_channel)
+                        await ctx.send("`Voice channel permissions removed for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
+            else:
+                await ctx.send("`You don't currently have a temporary voice channel!`")
+        
+        if type in ('text', 't', 'both', 'b'):
+            #Set allowed users in channel
+            if ctx.author.id in self.text_users[ctx.guild]:
+                for info in self.text_channels[ctx.guild]:
+                    if info.author == ctx.author:
+                        for user in users:
+                            await info.channel.set_permissions(user, read_messages = False)
+                        await ctx.send("`Text channel permissions removed for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
+            else:
+                await ctx.send("`You don't currently have a temporary text channel!`")
+
     @create.error
     @delete.error
     @setusers.error
+    @removeusers.error
     async def generic_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send("`You did not provide the '" + error.param + "' parameter.`")
