@@ -258,6 +258,7 @@ class ChannelUtilities:
     @channel.command(aliases = ['del'])
     @checks.no_pm()
     async def delete(self, ctx, type : str):
+        '''Delete temporary voice/text channels'''
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
             await ctx.send("`Type must be either 'voice', 'text', or 'both'.`")
             return
@@ -289,6 +290,7 @@ class ChannelUtilities:
     @channel.command(aliases = ['su'])
     @checks.no_pm()
     async def setusers(self, ctx, type : str, *users: discord.Member):
+        '''Give others permissions to join your temporary channel'''
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
             await ctx.send("`Type must be either 'voice', 'text', or 'both'.`")
             return
@@ -318,6 +320,7 @@ class ChannelUtilities:
     @channel.command(aliases = ['ru'])
     @checks.no_pm()
     async def removeusers(self, ctx, type : str, *users: discord.Member):
+        '''Remove others permissions to join your temporary channel'''
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
             await ctx.send("`Type must be either 'voice', 'text', or 'both'.`")
             return
