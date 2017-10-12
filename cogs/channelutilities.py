@@ -329,8 +329,8 @@ class ChannelUtilities:
                     if info.author == ctx.author:
                         for user in users:
                             await info.channel.set_permissions(user, connect = False)
-                            # Move user out of voice channel to a default voice channel if they are connected to voice
-                            if user.voice is not None:
+                            # Move user out of voice channel to a default voice channel if they are currently connected
+                            if user.voice is not None and user.voice.channel == info.channel:
                                 default_voice_channel = ctx.guild.get_channel(int(config['CHANNELUTILITIES']['DEFAULT_VOICE_CHANNEL_ID']))
                                 await user.move_to(default_voice_channel)
                         await ctx.send("`Voice channel permissions removed for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
