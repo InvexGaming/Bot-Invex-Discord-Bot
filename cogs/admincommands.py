@@ -49,6 +49,22 @@ class admincommands:
         await ctx.send(f'`{number} messages purged!`')
 
     
+    @commands.command(hidden=True)
+    @checks.is_owner()
+    async def root(self, ctx):
+        invex_guild = self.bot.get_guild(int(config['DEFAULT']['INVEXGUILD']))
+        root_role = discord.utils.get(invex_guild.roles, name='Root Permissions')
+        
+        if root_role in ctx.author.roles:
+            await ctx.send(ctx.author.mention + " `You already have root permissions.`")
+        else:
+            await ctx.author.add_roles(root_role)
+            await ctx.send(ctx.author.mention + " `Root permissions added and will be automatically removed in 15 minutes.`")
+            await asyncio.sleep(15*60) #15 minutes
+            if root_role in ctx.author.roles:
+                await ctx.author.remove_roles(root_role)
+                await ctx.send(ctx.author.mention + " `Your root permissions were removed.`")
+    
     @purge.error
     @purgeuser.error
     async def generic_handler(self, ctx, error):
