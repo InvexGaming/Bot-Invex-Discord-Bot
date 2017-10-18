@@ -11,10 +11,11 @@ config = config.GetConfig()
 
 class InvexForumMember:
     """InvexForumMember"""
-    def __init__(self, username, usergroups, discord_tag):
+    def __init__(self, username, usergroups, discord_tag, discord_userid):
         self.username = username
         self.usergroups = usergroups
         self.discord_tag = discord_tag
+        self.discord_userid = discord_userid
 
 class InvexForumSync:
     """InvexForumSync"""
@@ -31,14 +32,19 @@ class InvexForumSync:
         await bot.wait_until_ready()
         while not bot.is_closed():
             # Connect to Invex DB
-            conn = pymysql.connect(host=config['DB']['HOST'], port=int(config['DB']['PORT']), user=config['DB']['USER'], passwd=config['DB']['PASSWORD'], db=config['DB']['DATABASE'])
+            conn = pymysql.connect(host=config['DB']['HOST'],
+                                   port=int(config['DB']['PORT']),
+                                   user=config['DB']['USER'],
+                                   passwd=config['DB']['PASSWORD'],
+                                   db=config['DB']['DATABASE'],
+                                   charset=config['DB']['CHARSET'])
             cur = conn.cursor()
             
             # Fetch username, usergroups, additionalgroups and fid7 (discord tag in user#discrim format)
-            cur.execute('''SELECT u.username, u.usergroup, u.additionalgroups, uf.fid7
+            cur.execute('''SELECT u.username, u.usergroup, u.additionalgroups, uf.fid7, uf.fid8
                             FROM mybb_rmbj_users u
                             JOIN mybb_rmbj_userfields uf ON u.uid = uf.ufid
-                            WHERE uf.fid7 IS NOT NULL AND uf.fid7 != '' ''')
+                            WHERE uf.fid7 IS NOT NULL AND uf.fid7 != '' AND uf.fid8 IS NOT NULL AND uf.fid8 != '' ''')
             
             # Iterate through results accumulating InvexForumMember objects
             verified_forum_members = []
@@ -48,10 +54,8 @@ class InvexForumSync:
                 if len(row[2]) != 0:
                     usergroups.update(list(map(int, row[2].split(",")))) #split by comma and convert to int list
                 
-                verified_forum_members.append(InvexForumMember(row[0], usergroups, row[3]))
-                
-            cur.close()
-            conn.close()
+                verified_forum_members.append(InvexForumMember(row[0], usergroups, row[3], row[4]))
+            
             
             # Iterate through all members in the Discord
             invex_guild = bot.get_guild(int(config['DEFAULT']['INVEXGUILD']))
@@ -66,11 +70,17 @@ class InvexForumSync:
                 if bot_role in discord_member.roles:
                     continue
             
-                # Try to find a verified forum user with matching tag
+                # Try to find a verified forum user with matching id
                 forum_member = None
                 for member in verified_forum_members:
-                    if member.discord_tag == str(discord_member):
+                    if member.discord_userid == str(discord_member.id):
                         forum_member = member
+                        
+                        # Check to see if this user has a new name or discrim
+                        if member.discord_tag != str(discord_member):
+                            # Update this users user/discrim in database
+                            cur.execute(f"UPDATE mybb_rmbj_userfields SET fid7 = '{str(discord_member)}' WHERE fid8 = '{member.discord_userid}'")
+                        
                         break
                 
                 # If no match found, remove all roles from this Discord member
@@ -119,6 +129,9 @@ class InvexForumSync:
                     if len(roles_to_remove) > 0:
                         await discord_member.remove_roles(*roles_to_remove)
         
+            # Close DB connection
+            cur.close()
+            conn.close()
             
             await asyncio.sleep(15*60) #15 minutes
 
