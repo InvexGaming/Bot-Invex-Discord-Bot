@@ -255,6 +255,7 @@ class ChannelUtilities:
                 # Sleep
                 await asyncio.sleep(check_rate)
     
+    @checks.chcreate_or_permissions(manage_channels = True)
     @channel.command(aliases = ['del'])
     @checks.no_pm()
     async def delete(self, ctx, type : str):
@@ -287,6 +288,7 @@ class ChannelUtilities:
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
     
+    @checks.chcreate_or_permissions(manage_channels = True)
     @channel.command(aliases = ['su'])
     @checks.no_pm()
     async def setusers(self, ctx, type : str, *users: discord.Member):
@@ -316,7 +318,8 @@ class ChannelUtilities:
                         await ctx.send("`Text channel permissions added for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
-
+    
+    @checks.chcreate_or_permissions(manage_channels = True)
     @channel.command(aliases = ['ru'])
     @checks.no_pm()
     async def removeusers(self, ctx, type : str, *users: discord.Member):
