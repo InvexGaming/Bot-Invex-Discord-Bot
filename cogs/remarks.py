@@ -37,7 +37,7 @@ class Remarks:
         
         embed = discord.Embed(colour=discord.Colour(0xc0c0c0), title=f'"{quote}"')
         embed.set_author(name="Quotes", icon_url="https://www.invexgaming.com.au/images/discord/quote_icon_v2.png")
-        embed.set_footer(text = f"-{quote_author}")
+        embed.set_footer(text = f"- {quote_author}")
         await ctx.send(embed=embed)
     
     @commands.command(hidden=True)
