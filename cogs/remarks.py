@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from random import choice as randchoice
-import os
+import os, re
 from .utils import checks
 
 class Remarks:
@@ -11,6 +11,7 @@ class Remarks:
     def __init__(self,bot):
         self.bot = bot
         self.insults = open("data/insults.txt").read().splitlines()
+        self.addquote_regex = re.compile("^'.+ - .+'$", re.UNICODE)
 
     @commands.command(name='insult', aliases=['roast'], pass_context = True, no_pm = True)
     async def insult(self, ctx, user : discord.Member = None):
@@ -29,16 +30,26 @@ class Remarks:
     @commands.command(name='quote', pass_context = True, no_pm = True)
     async def quote(self, ctx):
         '''List a Quote!'''
-        quotes = open("data/quotes.txt").read().splitlines()
-        await ctx.send(randchoice(quotes))
+        quote_list = open("data/quotes.txt").read().splitlines()
+        selected_quote = randchoice(quote_list)
+        selected_quote = selected_quote[1:-1]
+        quote, quote_author = selected_quote.split(' - ')
+        
+        embed = discord.Embed(colour=discord.Colour(0xc0c0c0), title=f'"{quote}"')
+        embed.set_author(name="Quotes", icon_url="https://www.invexgaming.com.au/images/discord/quote_icon_v2.png")
+        embed.set_footer(text = f"-{quote_author}")
+        await ctx.send(embed=embed)
     
     @commands.command(hidden=True)
     @checks.is_owner()
-    async def addquote(self, ctx, quote : str):
+    async def addquote(self, ctx, *, quote : str):
         '''Add Quote to list of quotes'''
-        with open("data/quotes.txt", "a") as text_file:
-            text_file.write(f"'{quote}'\n")
-        await ctx.send('`Quote added!`')
+        if not self.addquote_regex.match(quote):
+            await ctx.send("`Quote must be in this format (including surrounding single quotes):\n'some quote here - quote author'`")
+        else:
+            with open("data/quotes.txt", "a") as text_file:
+                text_file.write(f"{quote}\n")
+            await ctx.send('`Quote added!`')
 
     @addquote.error
     async def create_handler(self, ctx, error):
@@ -73,5 +84,9 @@ class Remarks:
         '''reeeeee!'''
         await ctx.send(file = discord.File(open("data/images/ree.gif", "rb")))
 
+    @addquote.error
+    async def generic_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("`You did not provide the '" + error.param + "' parameter.`")
 def setup(bot):
     bot.add_cog(Remarks(bot))
