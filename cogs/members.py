@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+from datetime import datetime
+from datetime import timezone
 
 class MembersCog:
     def __init__(self, bot):
@@ -8,14 +10,17 @@ class MembersCog:
 
     @commands.command()
     @commands.guild_only()
-    async def joined(self, ctx, *, member: discord.Member):
+    async def joined(self, ctx, *, member: discord.Member = None):
         """Says when a member joined."""
-        await ctx.send(f'{member.display_name} joined on {member.joined_at}')
-
-    @joined.error
-    async def create_handler(self, ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("`You did not provide the '" + error.param + "' parameter.`")
+        
+        if not member:
+            member = ctx.author
+        
+        join_time = member.joined_at
+        join_time = join_time.replace(tzinfo=timezone.utc).astimezone(tz=None) # convert from UTC to local
+        
+        join_time_str = join_time.strftime('%A %d %B %Y %I:%M %p')
+        await ctx.send(f'{member.display_name} joined on `{join_time_str}`')
     
     @commands.command(name='bot', aliases=['ping'])
     async def _bot(self, ctx):
@@ -54,6 +59,7 @@ class MembersCog:
         await ctx.send(content=None, embed=embed)
         # Thanks to Gio for the Command.
 
+        
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case MembersCog.
 # When we load the cog, we use the name of the file.
 def setup(bot):
