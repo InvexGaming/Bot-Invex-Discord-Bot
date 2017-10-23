@@ -1,6 +1,6 @@
 import configparser
 
-''' Config import file which can be included to access config values '''
+""" Config import file which can be included to access config values """
 
 config = None
 

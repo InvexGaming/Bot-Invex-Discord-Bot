@@ -7,14 +7,14 @@ from random import choice as randchoice
 from .utils import checks
 
 class GameTracker:
-    '''GameTracker cog to keep track of server status'''
+    """GameTracker cog to keep track of server status"""
     
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
     async def servers(self,ctx):
-        '''List Invex Gaming Servers status'''
+        """List Invex Gaming Servers status"""
         page = requests.get('https://www.invexgaming.com.au/serverlist.php')
         tree = html.fromstring(page.content)
         
@@ -33,5 +33,3 @@ class GameTracker:
 
 def setup(bot):
     bot.add_cog(GameTracker(bot))
-
-

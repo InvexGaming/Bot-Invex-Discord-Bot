@@ -1,10 +1,12 @@
 import discord
 from discord.ext import commands
 
-from datetime import datetime
-from datetime import timezone
+from datetime import datetime, timezone
 
 class MembersCog:
+
+    """Useful functions to use on guild members."""
+    
     def __init__(self, bot):
         self.bot = bot
 

@@ -1,21 +1,23 @@
 import discord
 from discord.ext import commands
+
+import os
+import re
 from random import choice as randchoice
-import os, re
 from .utils import checks
 
 class Remarks:
 
-    '''ev0ked's Remarks Cog'''
-
+    """ev0ked's Remarks Cog"""
+    
     def __init__(self,bot):
         self.bot = bot
         self.insults = open("data/insults.txt").read().splitlines()
         self.addquote_regex = re.compile("^'.+ - .+'$", re.UNICODE)
 
-    @commands.command(name='insult', aliases=['roast'], pass_context = True, no_pm = True)
-    async def insult(self, ctx, user : discord.Member = None):
-        '''Insult another user!'''
+    @commands.command(name='insult', aliases=['roast'], pass_context=True, no_pm=True)
+    async def insult(self, ctx, user : discord.Member=None):
+        """Insult another user!"""
 
         msg = ' '
         if user != None:
@@ -27,9 +29,9 @@ class Remarks:
         else:
             await ctx.send(ctx.message.author.mention + msg + randchoice(self.insults))
 
-    @commands.command(name='quote', pass_context = True, no_pm = True)
+    @commands.command(name='quote', pass_context=True, no_pm=True)
     async def quote(self, ctx):
-        '''List a Quote!'''
+        """List a Quote!"""
         quote_list = open("data/quotes.txt").read().splitlines()
         selected_quote = randchoice(quote_list)
         selected_quote = selected_quote[1:-1]
@@ -43,7 +45,7 @@ class Remarks:
     @commands.command(hidden=True)
     @checks.is_owner()
     async def addquote(self, ctx, *, quote : str):
-        '''Add Quote to list of quotes'''
+        """Add Quote to list of quotes"""
         if not self.addquote_regex.match(quote):
             await ctx.send("`Quote must be in this format (including surrounding single quotes):\n'some quote here - quote author'`")
         else:
@@ -60,12 +62,12 @@ class Remarks:
 
     @commands.command()
     async def dotheroar(self,ctx):
-        '''Roooooar!'''
+        """Roooooar!"""
         await ctx.send('https://giphy.com/gifs/shrek-qFsHUsuBMQemQ')
 
     @commands.command()
     async def panic(self,ctx):
-        '''SOUND THE ALARMS!@!'''
+        """SOUND THE ALARMS!@!"""
         await ctx.send(':rotating_light: EVERYTHING IS BROKEN :rotating_light:')
         await ctx.send(':rotating_light: CALL THE COPS :rotating_light:')
         await ctx.send(':rotating_light: SHUT DOWN EVERYTHING :rotating_light:')
@@ -73,7 +75,7 @@ class Remarks:
 
     @commands.command()
     async def n8egirl(self,ctx):
-        '''Approved by n8'''
+        """Approved by n8"""
         await ctx.send(":man_in_tuxedo: n8's e-girl? What one?")
         await ctx.send(':raising_hand: Elaina?')
         await ctx.send(':raising_hand: Darcye?')
@@ -81,8 +83,8 @@ class Remarks:
 
     @commands.command(aliases=['ree'])
     async def reeeeee(self,ctx):
-        '''reeeeee!'''
-        await ctx.send(file = discord.File(open("data/images/ree.gif", "rb")))
+        """reeeeee!"""
+        await ctx.send(file=discord.File(open("data/images/ree.gif", "rb")))
 
     @addquote.error
     async def generic_handler(self, ctx, error):

@@ -1,7 +1,7 @@
-import asyncio
 import discord
 from discord.ext import commands
 
+import asyncio
 from .utils import checks
 
 # Get Config
@@ -31,21 +31,21 @@ class admincommands:
     @commands.command(hidden=True)
     @checks.is_owner()
     async def purge(self, ctx, number: int):
-        '''Purge messages'''
+        """Purge messages"""
         def is_pinned(m):
             return m.pinned == False
 
-        await ctx.message.channel.purge(limit=(number+1), check = is_pinned)
+        await ctx.message.channel.purge(limit=(number+1), check=is_pinned)
         await ctx.send(f'`{number} messages purged!`')
 
     @commands.command(hidden=True)
     @checks.is_owner()
     async def purgeuser(self, ctx, user : discord.Member, number: int):
-        '''Purge specific user messages'''
+        """Purge specific user messages"""
         def is_user(m):
             return m.author == user
 
-        await ctx.message.channel.purge(limit=(number+1), check = is_user)
+        await ctx.message.channel.purge(limit=(number+1), check=is_user)
         await ctx.send(f'`{number} messages purged!`')
 
     

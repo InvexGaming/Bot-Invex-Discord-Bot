@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
-import random, asyncio
+
+import asyncio
+import random
 
 """A cog to change the bots Discord game based on a provided predefined list."""
 

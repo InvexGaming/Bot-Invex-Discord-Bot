@@ -1,13 +1,12 @@
 import discord
 from discord.ext import commands
 
-import pymysql, asyncio
+import asyncio
+import pymysql
 
 # Get Config
 import config
 config = config.GetConfig()
-
-"""A cog to sync roles on the server based on verified Discord Tags stored in the Invex database"""
 
 class InvexForumMember:
     """InvexForumMember"""
@@ -18,14 +17,14 @@ class InvexForumMember:
         self.discord_userid = discord_userid
 
 class InvexForumSync:
-    """InvexForumSync"""
+    """Sync roles on the server based on verified Discord Tags stored in the Invex database"""
     
     def __init__(self, bot):
         bot.loop.create_task(self.sync(bot))
         
-    @commands.command(aliases = ['link'])
+    @commands.command(aliases=['link'])
     async def verify(self, ctx):
-        '''Print information about how to link Discord to Invex Forum Accounts'''
+        """Print information about how to link Discord to Invex Forum Accounts"""
         await ctx.send("**Want to receive your role/rank?**\nYou have to link your forum account and Discord account to receive your role.\nOur Bot will automatically update roles every 15 minutes.\n**Visit:** https://www.invexgaming.com.au/showthread.php?tid=8384")
 
     async def sync(self, bot):
@@ -41,10 +40,11 @@ class InvexForumSync:
             cur = conn.cursor()
             
             # Fetch username, usergroups, additionalgroups and fid7 (discord tag in user#discrim format)
-            cur.execute('''SELECT u.username, u.usergroup, u.additionalgroups, uf.fid7, uf.fid8
+            cur.execute("""SELECT u.username, u.usergroup, u.additionalgroups, uf.fid7, uf.fid8
                             FROM mybb_rmbj_users u
                             JOIN mybb_rmbj_userfields uf ON u.uid = uf.ufid
-                            WHERE uf.fid7 IS NOT NULL AND uf.fid7 != '' AND uf.fid8 IS NOT NULL AND uf.fid8 != '' ''')
+                            WHERE uf.fid7 IS NOT NULL AND uf.fid7 != '' AND uf.fid8 IS NOT NULL AND uf.fid8 != ''
+                        """)
             
             # Iterate through results accumulating InvexForumMember objects
             verified_forum_members = []
@@ -92,21 +92,22 @@ class InvexForumSync:
                     #Process this user
                     
                     # Enforce Username
-                    await discord_member.edit(nick = forum_member.username)
+                    await discord_member.edit(nick=forum_member.username)
                     
                     # Assign Roles/Permissions
-                    forum_groups = [   ('Staff', 51), 
-                                       ('Head Administrator', 95), 
-                                       ('Server Administrator', 31), 
-                                       ('Surf Admin', 52), 
-                                       ('Jailbreak Admin', 66), 
-                                       ('1v1 Admin', 72), 
-                                       ('Veteran', 55), 
-                                       ('Senior Member', 11), 
-                                       ('VIP', 41), 
-                                       ('Member', 21)
-                                   ]
-                                   
+                    forum_groups = [
+                        ('Staff', 51), 
+                        ('Head Administrator', 95), 
+                        ('Server Administrator', 31), 
+                        ('Surf Admin', 52), 
+                        ('Jailbreak Admin', 66), 
+                        ('1v1 Admin', 72), 
+                        ('Veteran', 55), 
+                        ('Senior Member', 11), 
+                        ('VIP', 41), 
+                        ('Member', 21),
+                    ]
+                    
                     roles_to_add = []
                     roles_to_remove = []
                     

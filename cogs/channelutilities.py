@@ -1,10 +1,10 @@
-import asyncio
 import discord
 from discord.ext import commands
 
-import re, datetime
+import asyncio
+import re
+import datetime
 from collections import namedtuple
-
 from .utils import checks
 
 # Get Config
@@ -12,6 +12,8 @@ import config
 config = config.GetConfig()
 
 class ChannelUtilities:
+
+    """Text and Voice Channel utilities."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -35,25 +37,26 @@ class ChannelUtilities:
 
         bot.loop.create_task(self._timing_deletion_loop())
             
-    @commands.group(aliases = ['ch'])
+    @commands.group(aliases=['ch'])
     @checks.no_pm()
     async def channel(self, ctx):
-        '''Used to manage temporary channels'''
+        """Used to manage temporary channels"""
         #For help on channel commands, use: help channel
         if ctx.invoked_subcommand is None:
             ctx.message.content = config['DEFAULT']['PREFIX'] + "help channel"
             await self.bot.process_commands(ctx.message)
 
-    @checks.chcreate_or_permissions(manage_channels = True)
-    @channel.command(aliases = ['cr'])
+    @checks.chcreate_or_permissions(manage_channels=True)
+    @channel.command(aliases=['cr'])
     @checks.no_pm()
     async def create(self, ctx, type : str, time : str, limit : str, *, name : str):
-        '''Creates temporary voice/text channels
+        """Creates temporary voice/text channels
         Parameters:
         {type} = Type of channel (either [voice|v], [text|t], or [both|b])
         {time} = Time channel will exist for in minutes (between 0 and 1440)
         {limit} = amount of players able to join the channel (between 0 and 99). 0 indicating there is no limit.
-        {name} = name of the channel (max 32 characters) '''
+        {name} = name of the channel (max 32 characters)
+        """
         
         guild = ctx.guild
         author = ctx.author
@@ -121,8 +124,8 @@ class ChannelUtilities:
                 
                 # Voice Overwrite Permissions
                 voice_overwrites = {
-                    guild.default_role: discord.PermissionOverwrite(connect = False),
-                    author: discord.PermissionOverwrite(connect = True)
+                    guild.default_role: discord.PermissionOverwrite(connect=False),
+                    author: discord.PermissionOverwrite(connect=True)
                 }
                 
                 alphanumeric_name = self.non_alphanumeric_pattern.sub('', name) #remove all non-alphanumeric chars
@@ -132,14 +135,14 @@ class ChannelUtilities:
                     await ctx.send("`Provided temporary voice channel name contained invalid characters, using default name instead.`")
                     alphanumeric_name = f'temp_voice_{len(voice_category.channels) + 1}'
                     
-                voice_channel = await guild.create_voice_channel(name = alphanumeric_name, category = voice_category, overwrites = voice_overwrites)
+                voice_channel = await guild.create_voice_channel(name=alphanumeric_name, category=voice_category, overwrites=voice_overwrites)
                 
                 # Pause after creating channels
                 await asyncio.sleep(1)
                
                 # Set Voice channel limit
                 if limit:
-                    await voice_channel.edit(user_limit = limit)
+                    await voice_channel.edit(user_limit=limit)
                 
                 await ctx.send(f'`Voice channel \'{alphanumeric_name}\' created, it will expire in {time} minute(s)!`')    
                 
@@ -172,8 +175,8 @@ class ChannelUtilities:
                     
                 # Text Overwrite Permissions
                 text_overwrites = {
-                    guild.default_role: discord.PermissionOverwrite(read_messages = False),
-                    author: discord.PermissionOverwrite(read_messages = True)
+                    guild.default_role: discord.PermissionOverwrite(read_messages=False),
+                    author: discord.PermissionOverwrite(read_messages=True)
                 }
 
                 alphanumeric_name = name.replace(' ', '_') #turn spaces into underscores
@@ -184,13 +187,13 @@ class ChannelUtilities:
                     await ctx.send("`Provided temporary text channel name contained invalid characters, using default name instead.`")
                     alphanumeric_name = f'temp_text_{len(text_category.channels) + 1}'
                 
-                text_channel = await guild.create_text_channel(name = alphanumeric_name, category = text_category, overwrites = text_overwrites)
+                text_channel = await guild.create_text_channel(name=alphanumeric_name, category=text_category, overwrites=text_overwrites)
 
                 # Pause after creating channels
                 await asyncio.sleep(1)
                 
                 # Set Text channel description
-                await text_channel.edit(topic = f'{author.name}\'s temporary text channel.')
+                await text_channel.edit(topic=f'{author.name}\'s temporary text channel.')
                 
                 await ctx.send(f'`Text channel \'{alphanumeric_name}\' created, it will expire in {time} minute(s)!`')
                 
@@ -255,11 +258,11 @@ class ChannelUtilities:
                 # Sleep
                 await asyncio.sleep(check_rate)
     
-    @checks.chcreate_or_permissions(manage_channels = True)
-    @channel.command(aliases = ['del'])
+    @checks.chcreate_or_permissions(manage_channels=True)
+    @channel.command(aliases=['del'])
     @checks.no_pm()
     async def delete(self, ctx, type : str):
-        '''Delete temporary voice/text channels'''
+        """Delete temporary voice/text channels"""
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
             await ctx.send("`Type must be either 'voice', 'text', or 'both'.`")
             return
@@ -288,11 +291,11 @@ class ChannelUtilities:
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
     
-    @checks.chcreate_or_permissions(manage_channels = True)
-    @channel.command(aliases = ['su'])
+    @checks.chcreate_or_permissions(manage_channels=True)
+    @channel.command(aliases=['su'])
     @checks.no_pm()
     async def setusers(self, ctx, type : str, *users: discord.Member):
-        '''Give others permissions to join your temporary channel'''
+        """Give others permissions to join your temporary channel"""
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
             await ctx.send("`Type must be either 'voice', 'text', or 'both'.`")
             return
@@ -303,7 +306,7 @@ class ChannelUtilities:
                 for info in self.voice_channels[ctx.guild]:
                     if info.author == ctx.author:
                         for user in users:
-                            await info.channel.set_permissions(user, connect = True)
+                            await info.channel.set_permissions(user, connect=True)
                         await ctx.send("`Voice channel permissions added for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
             else:
                 await ctx.send("`You don't currently have a temporary voice channel!`")
@@ -314,16 +317,16 @@ class ChannelUtilities:
                 for info in self.text_channels[ctx.guild]:
                     if info.author == ctx.author:
                         for user in users:
-                            await info.channel.set_permissions(user, read_messages = True)
+                            await info.channel.set_permissions(user, read_messages=True)
                         await ctx.send("`Text channel permissions added for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
     
-    @checks.chcreate_or_permissions(manage_channels = True)
-    @channel.command(aliases = ['ru'])
+    @checks.chcreate_or_permissions(manage_channels=True)
+    @channel.command(aliases=['ru'])
     @checks.no_pm()
     async def removeusers(self, ctx, type : str, *users: discord.Member):
-        '''Remove others permissions to join your temporary channel'''
+        """Remove others permissions to join your temporary channel"""
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
             await ctx.send("`Type must be either 'voice', 'text', or 'both'.`")
             return
@@ -334,7 +337,7 @@ class ChannelUtilities:
                 for info in self.voice_channels[ctx.guild]:
                     if info.author == ctx.author:
                         for user in users:
-                            await info.channel.set_permissions(user, connect = False)
+                            await info.channel.set_permissions(user, connect=False)
                             # Move user out of voice channel to a default voice channel if they are currently connected
                             if user.voice is not None and user.voice.channel == info.channel:
                                 default_voice_channel = ctx.guild.get_channel(int(config['CHANNELUTILITIES']['DEFAULT_VOICE_CHANNEL_ID']))
@@ -349,7 +352,7 @@ class ChannelUtilities:
                 for info in self.text_channels[ctx.guild]:
                     if info.author == ctx.author:
                         for user in users:
-                            await info.channel.set_permissions(user, read_messages = False)
+                            await info.channel.set_permissions(user, read_messages=False)
                         await ctx.send("`Text channel permissions removed for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
