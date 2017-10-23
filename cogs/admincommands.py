@@ -65,6 +65,18 @@ class admincommands:
                 await ctx.author.remove_roles(root_role)
                 await ctx.send(ctx.author.mention + " `Your root permissions were removed.`")
     
+    @commands.command(hidden=True)
+    @checks.is_owner()
+    async def unroot(self, ctx):
+        invex_guild = self.bot.get_guild(int(config['DEFAULT']['INVEXGUILD']))
+        root_role = discord.utils.get(invex_guild.roles, name='Root Permissions')
+        
+        if root_role in ctx.author.roles:
+            await ctx.author.remove_roles(root_role)
+            await ctx.send(ctx.author.mention + " `Your root permissions were removed.`")
+        else:
+            await ctx.send(ctx.author.mention + " `You do not currently have root permissions.`")
+    
     @purge.error
     @purgeuser.error
     async def generic_handler(self, ctx, error):
