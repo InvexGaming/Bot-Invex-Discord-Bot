@@ -10,7 +10,7 @@ class MembersCog:
 
     @commands.command()
     @commands.guild_only()
-    async def joined(self, ctx, *, member: discord.Member = None):
+    async def joined(self, ctx, *, member: discord.Member=None):
         """Says when a member joined."""
         
         if not member:
@@ -59,6 +59,15 @@ class MembersCog:
         await ctx.send(content=None, embed=embed)
         # Thanks to Gio for the Command.
 
+    @commands.command()
+    @commands.guild_only()
+    async def avatar(self, ctx, *, member: discord.Member=None):
+        """Displays a users avatar link."""
+        
+        if not member:
+            member = ctx.author
+        
+        await ctx.send(f"**{member.display_name}'s avatar URL:**\n{member.avatar_url}")
         
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case MembersCog.
 # When we load the cog, we use the name of the file.
