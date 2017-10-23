@@ -21,7 +21,7 @@ class MembersCog:
         join_time = member.joined_at
         join_time = join_time.replace(tzinfo=timezone.utc).astimezone(tz=None) # convert from UTC to local
         
-        join_time_str = join_time.strftime('%A %d %B %Y %I:%M %p')
+        join_time_str = join_time.strftime('%A %d %B %Y at %I:%M:%S %p')
         await ctx.send(f'{member.display_name} joined on `{join_time_str}`')
     
     @commands.command(name='bot', aliases=['ping'])
