@@ -3,7 +3,6 @@ from discord.ext import commands
 
 import requests
 from lxml import html
-from random import choice as randchoice
 from .utils import checks
 
 class GameTracker:

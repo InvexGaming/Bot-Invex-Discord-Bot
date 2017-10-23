@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 import asyncio
-import random
+from random import choice
 
 """A cog to change the bots Discord game based on a provided predefined list."""
 
@@ -16,8 +16,7 @@ class RandomDiscordGame:
     async def updateDiscordGame(self, bot):
         await bot.wait_until_ready()
         while not bot.is_closed():
-            randIndex = random.randint(0, len(self.discordGames) - 1)
-            await bot.change_presence(game=discord.Game(name=self.discordGames[randIndex]))
+            await bot.change_presence(game=discord.Game(name=choice(self.discordGames)))
             await asyncio.sleep(10*60) #10 minutes
     
 def setup(bot):

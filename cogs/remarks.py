@@ -3,7 +3,7 @@ from discord.ext import commands
 
 import os
 import re
-from random import choice as randchoice
+from random import choice
 from .utils import checks
 
 class Remarks:
@@ -25,15 +25,15 @@ class Remarks:
                 msg = " How original. No one else had thought of trying to get the bot to insult itself. I applaud your creativity. Yawn. Perhaps this is why you don't have friends. You don't add anything new to any conversation. You are more of a bot than me, predictable answers, and absolutely dull to have an actual conversation with."
                 await ctx.send(user.mention + msg)
             else:
-                await ctx.send(user.mention + msg + randchoice(self.insults))
+                await ctx.send(user.mention + msg + choice(self.insults))
         else:
-            await ctx.send(ctx.message.author.mention + msg + randchoice(self.insults))
+            await ctx.send(ctx.message.author.mention + msg + choice(self.insults))
 
     @commands.command(name='quote', pass_context=True, no_pm=True)
     async def quote(self, ctx):
         """List a Quote!"""
         quote_list = open("data/quotes.txt").read().splitlines()
-        selected_quote = randchoice(quote_list)
+        selected_quote = choice(quote_list)
         selected_quote = selected_quote[1:-1]
         quote, quote_author = selected_quote.split(' - ')
         
