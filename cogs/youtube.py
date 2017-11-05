@@ -62,7 +62,7 @@ class Youtube:
                 
                 if published_at_datetime > last_processed_datetime:
                     # New video, post to web hook
-                    await youtube_webhook.send(f"**{video['snippet']['channelTitle']}** uploaded **{video['snippet']['title']}** at {published_at_str}:\n https://youtu.be/{video['snippet']['resourceId']['videoId']}")
+                    await youtube_webhook.send(f"**{video['snippet']['channelTitle']}** uploaded **{video['snippet']['title']}** at {published_at_str}:\nhttps://youtu.be/{video['snippet']['resourceId']['videoId']}")
                     
             # Store current epoch to file so we don't reprocess same videos later
             epoch = datetime.now()
