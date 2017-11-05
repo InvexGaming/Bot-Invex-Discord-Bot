@@ -11,9 +11,9 @@ class RandomDiscordGame:
 
     def __init__(self, bot):
         self.discordGames = open("data/randomdiscordgames.txt").read().splitlines()
-        bot.loop.create_task(self.updateDiscordGame(bot))
+        bot.loop.create_task(self.update_discord_game(bot))
 
-    async def updateDiscordGame(self, bot):
+    async def update_discord_game(self, bot):
         await bot.wait_until_ready()
         while not bot.is_closed():
             await bot.change_presence(game=discord.Game(name=choice(self.discordGames)))

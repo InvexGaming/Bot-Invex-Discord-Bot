@@ -16,9 +16,9 @@ class GameTracker:
     
     def __init__(self, bot):
         self.bot = bot
-        bot.loop.create_task(self.updateServers(bot))
+        bot.loop.create_task(self.update_servers(bot))
 
-    async def updateServers(self, bot):
+    async def update_servers(self, bot):
         await bot.wait_until_ready()
         
         # Get Invex Guild and server status channel
