@@ -40,6 +40,7 @@ initial_extensions = (
     'cogs.randomdiscordgames',
     'cogs.invexforumsync',
     'cogs.gametracker',
+    'cogs.youtube',
 )
 
 bot = commands.Bot(command_prefix=get_prefix, description=description)
