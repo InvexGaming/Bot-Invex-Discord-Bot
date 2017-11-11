@@ -58,6 +58,8 @@ class Youtube:
                 await asyncio.sleep(5*60) # timeout 5 minutes
                 continue
             
+            session.close()
+            
             videos = r["items"]
             
             # Get last processed time
