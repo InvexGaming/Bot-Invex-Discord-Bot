@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 
 import asyncio
-import requests
+import aiohttp
+import async_timeout
 from datetime import datetime, timezone
 from lxml import html
 from .utils import checks
@@ -16,6 +17,7 @@ class GameTracker:
     
     def __init__(self, bot):
         self.bot = bot
+        self.session = aiohttp.ClientSession()
         bot.loop.create_task(self.update_servers(bot))
 
     async def update_servers(self, bot):
@@ -30,8 +32,15 @@ class GameTracker:
             await serverstatus_channel.purge(limit=100)
             
             # Output embed
-            page = requests.get('https://www.invexgaming.com.au/serverlist.php')
-            tree = html.fromstring(page.content)
+            try:
+                with async_timeout.timeout(30):
+                    async with self.session.get('https://www.invexgaming.com.au/serverlist.php') as response:
+                        page = await response.text()
+            except asyncio.TimeoutError:
+                await asyncio.sleep(5*60) #5 minutes
+                continue
+            
+            tree = html.fromstring(page)
             
             for i in range(1,4):
                 servername = tree.xpath(f'//*[@id="serversboard_e"]/tr[{i}]/td[4]/span/a/text()')
@@ -54,7 +63,6 @@ class GameTracker:
             post_time = post_time.replace(tzinfo=timezone.utc).astimezone(tz=None) # convert from UTC to local
             post_time_str = post_time.strftime('%A %d %B %Y at %I:%M:%S %p')
             await serverstatus_channel.send(f'Last Updated: `{post_time_str}`')
-            
             await asyncio.sleep(5*60) #5 minutes
 
 def setup(bot):

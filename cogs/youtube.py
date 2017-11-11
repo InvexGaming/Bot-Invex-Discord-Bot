@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 
 import asyncio
-import requests
+import aiohttp
+import async_timeout
 from datetime import datetime, timezone
 
 # Get Config
@@ -13,7 +14,7 @@ config = config.GetConfig()
 
 class Youtube:
     """Youtube"""
-
+    
     def __init__(self, bot):
         bot.loop.create_task(self.check_youtube_channel(bot))
     
@@ -24,25 +25,40 @@ class Youtube:
         youtube_webhook = discord.utils.get(await invex_guild.webhooks(), name='Youtube')
         
         while not bot.is_closed():
+            # Make a session
+            session = aiohttp.ClientSession()
+            
             # Get uploaded videos playlist id
             uploads_id_query = f"https://www.googleapis.com/youtube/v3/channels?id={config['YOUTUBE']['CHANNEL_ID']}&key={config['YOUTUBE']['API_KEY']}&part=contentDetails"
             
-            r = requests.get(uploads_id_query)
-            if r.status_code != 200:
+            try:
+                with async_timeout.timeout(30):
+                    async with session.get(uploads_id_query) as response:
+                        r = await response.json()
+                        if response.status != 200:
+                            await asyncio.sleep(5*60) # timeout 5 minutes
+                            continue
+            except asyncio.TimeoutError:
                 await asyncio.sleep(5*60) # timeout 5 minutes
                 continue
             
-            uploads_id = r.json()["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+            uploads_id = r["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
             
             # Query playlistitems to get list of videos (last 10 videos)
             playlistitems_query = f"https://www.googleapis.com/youtube/v3/playlistItems?playlistId={uploads_id}&key={config['YOUTUBE']['API_KEY']}&part=snippet&maxResults=10"
             
-            r = requests.get(playlistitems_query)
-            if r.status_code != 200:
+            try:
+                with async_timeout.timeout(30):
+                    async with session.get(playlistitems_query) as response:
+                        r = await response.json()
+                        if response.status != 200:
+                            await asyncio.sleep(5*60) # timeout 5 minutes
+                            continue
+            except asyncio.TimeoutError:
                 await asyncio.sleep(5*60) # timeout 5 minutes
                 continue
             
-            videos = r.json()["items"]
+            videos = r["items"]
             
             # Get last processed time
             f = open("data/youtubelastupdate.txt", "r+")
