@@ -25,8 +25,8 @@ class InvexForumSync:
     @commands.command(aliases=['link'])
     async def verify(self, ctx):
         """Print information about how to link Discord to Invex Forum Accounts"""
-        await ctx.send("**Want to receive your role/rank?**\nYou have to link your forum account and Discord account to receive your role.\nOur Bot will automatically update roles every 15 minutes.\n**Visit:** https://www.invexgaming.com.au/showthread.php?tid=8384")
-
+        await ctx.send("**Want to receive your role/rank?**\nYou have to link your forum account and Discord account to receive your role.\nOur Bot will automatically update roles every 15 minutes.\n**Visit:** https://invex.gg/linkdiscord")
+    
     async def sync(self, bot):
         await bot.wait_until_ready()
         while not bot.is_closed():

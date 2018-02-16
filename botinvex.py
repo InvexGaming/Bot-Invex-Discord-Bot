@@ -22,7 +22,7 @@ def get_prefix(bot, msg):
     prefixes = [config['DEFAULT']['PREFIX']]
     
     # Check to see if we are outside of a guild. e.g DM's etc.
-    if msg.guild.id is None:
+    if msg.guild is None:
         # Only allow ? to be used in DMs
         return '?'
 
