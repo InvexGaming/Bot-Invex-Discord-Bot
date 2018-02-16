@@ -28,7 +28,7 @@ class ChannelUtilities:
         
         self.Info = namedtuple('Info', 'ctx author channel expiry')
         
-        #Initialises a Dictionary of lists for each guild
+        # Initialises a Dictionary of lists for each guild
         for guild in self.bot.guilds:
             self.voice_users[guild] = list()
             self.voice_channels[guild] = list()
@@ -41,7 +41,7 @@ class ChannelUtilities:
     @checks.no_pm()
     async def channel(self, ctx):
         """Used to manage temporary channels"""
-        #For help on channel commands, use: help channel
+        # For help on channel commands, use: help channel
         if ctx.invoked_subcommand is None:
             ctx.message.content = config['DEFAULT']['PREFIX'] + "help channel"
             await self.bot.process_commands(ctx.message)
@@ -70,7 +70,7 @@ class ChannelUtilities:
             self.text_channels[guild] = list()
             
             
-        #Input Verification
+        # Input Verification
         errors = []
         
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
@@ -100,7 +100,7 @@ class ChannelUtilities:
             await self.bot.process_commands(ctx.message)
             return
             
-        #Channel Creation
+        # Channel Creation
         try:
             # Handle Voice Channel
             if type in ('voice', 'v', 'both', 'b'):
@@ -268,7 +268,7 @@ class ChannelUtilities:
             return
     
         if type in ('voice', 'v', 'both', 'b'):
-            #Delete your temp channel
+            # Delete your temp channel
             if ctx.author.id in self.voice_users[ctx.guild]:
                 for info in self.voice_channels[ctx.guild]:
                     if info.author == ctx.author:
@@ -280,7 +280,7 @@ class ChannelUtilities:
                 await ctx.send("`You don't currently have a temporary voice channel!`")
         
         if type in ('text', 't', 'both', 'b'):
-            #Delete your temp channel
+            # Delete your temp channel
             if ctx.author.id in self.text_users[ctx.guild]:
                 for info in self.text_channels[ctx.guild]:
                     if info.author == ctx.author:
@@ -301,7 +301,7 @@ class ChannelUtilities:
             return
         
         if type in ('voice', 'v', 'both', 'b'):
-            #Set allowed users in channel
+            # Set allowed users in channel
             if ctx.author.id in self.voice_users[ctx.guild]:
                 for info in self.voice_channels[ctx.guild]:
                     if info.author == ctx.author:
@@ -312,7 +312,7 @@ class ChannelUtilities:
                 await ctx.send("`You don't currently have a temporary voice channel!`")
         
         if type in ('text', 't', 'both', 'b'):
-            #Set allowed users in channel
+            # Set allowed users in channel
             if ctx.author.id in self.text_users[ctx.guild]:
                 for info in self.text_channels[ctx.guild]:
                     if info.author == ctx.author:
@@ -332,7 +332,7 @@ class ChannelUtilities:
             return
         
         if type in ('voice', 'v', 'both', 'b'):
-            #Set allowed users in channel
+            # Set allowed users in channel
             if ctx.author.id in self.voice_users[ctx.guild]:
                 for info in self.voice_channels[ctx.guild]:
                     if info.author == ctx.author:
@@ -347,7 +347,7 @@ class ChannelUtilities:
                 await ctx.send("`You don't currently have a temporary voice channel!`")
         
         if type in ('text', 't', 'both', 'b'):
-            #Set allowed users in channel
+            # Set allowed users in channel
             if ctx.author.id in self.text_users[ctx.guild]:
                 for info in self.text_channels[ctx.guild]:
                     if info.author == ctx.author:
@@ -357,12 +357,47 @@ class ChannelUtilities:
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
 
+    
+    @checks.chcreate_or_permissions(manage_channels=True)
+    @channel.command(aliases=['co'])
+    @checks.no_pm()
+    async def checkowner(self, ctx, type : str, *, name : str):
+        """Check the owner of a specific temporary channel"""
+        if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
+            await ctx.send("`Type must be either 'voice', 'text', or 'both'.`")
+            return
+        
+        voice_found = False
+        text_found = False
+        
+        if type in ('voice', 'v', 'both', 'b'):
+            for info in self.voice_channels[ctx.guild]:
+                # Perform lowercase string contains check
+                if name.lower() in info.channel.name.lower():
+                    await ctx.send(f'`Voice channel \'{info.channel.name}\' is owned by: {info.author.display_name} ({info.author.name}#{info.author.discriminator})`')
+                    voice_found = True
+                    
+            if not voice_found:
+                await ctx.send("`Failed to find a matching temporary voice channel.`")
+    
+        if type in ('text', 't', 'both', 'b'):
+            for info in self.text_channels[ctx.guild]:
+                # Perform lowercase string contains check
+                if name.lower() in info.channel.name.lower():
+                    await ctx.send(f'`Text channel \'{info.channel.name}\' is owned by: {info.author.display_name} ({info.author.name}#{info.author.discriminator})`')
+                    text_found = True
+                    
+            if not text_found:
+                await ctx.send("`Failed to find a matching temporary text channel.`")
+    
     @create.error
     @delete.error
     @setusers.error
     @removeusers.error
+    @checkowner.error
     async def generic_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("`You did not provide the '" + error.param + "' parameter.`")
+            await ctx.send("`You did not provide the '" + error.param.name + "' parameter.`")
+    
 def setup(bot):
     bot.add_cog(ChannelUtilities(bot))
