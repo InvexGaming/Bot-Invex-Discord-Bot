@@ -62,5 +62,21 @@ async def on_ready():
                 traceback.print_exc() # Uncomment for bug reports.
     print(f'Successfully logged in and connected!')
 
+
+# Welcome Message
+@bot.event
+async def on_member_join(member):
+    invex_guild = bot.get_guild(int(config['DEFAULT']['INVEXGUILD']))
+    
+    if invex_guild != member.guild:
+        return
+    
+    # Format Welcome Message
+    welcome_message = config['DEFAULT']['WELCOME_MESSAGE'].format(
+      name=member.display_name,
+      verify_text=config['DEFAULT']['VERIFY_TEXT'],
+    )
+    
+    await member.send(welcome_message)
     
 bot.run(config['DEFAULT']['TOKEN'], bot=True, reconnect=True)

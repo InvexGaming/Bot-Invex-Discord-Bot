@@ -12,8 +12,13 @@ class CommandErrorHandler:
 
         if hasattr(ctx.command, 'on_error'):
             return
-
-        if isinstance(error, commands.CommandNotFound):
+        
+        print(ctx.command)
+        
+        ignored = (commands.CommandNotFound, commands.UserInputError, commands.CheckFailure)
+        error = getattr(error, 'original', error)
+        
+        if isinstance(error, ignored):
             return
 
         elif isinstance(error, commands.DisabledCommand):

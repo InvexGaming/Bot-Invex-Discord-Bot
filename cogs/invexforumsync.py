@@ -25,7 +25,7 @@ class InvexForumSync:
     @commands.command(aliases=['link'])
     async def verify(self, ctx):
         """Print information about how to link Discord to Invex Forum Accounts"""
-        await ctx.send("**Want to receive your role/rank?**\nYou have to link your forum account and Discord account to receive your role.\nOur Bot will automatically update roles every 15 minutes.\n**Visit:** https://invex.gg/linkdiscord")
+        await ctx.send(config['DEFAULT']['VERIFY_TEXT'])
     
     async def sync(self, bot):
         await bot.wait_until_ready()
@@ -78,8 +78,9 @@ class InvexForumSync:
                         
                         # Check to see if this user has a new name or discrim
                         if member.discord_tag != str(discord_member):
-                            # Update this users user/discrim in database
-                            cur.execute(f"UPDATE mybb_rmbj_userfields SET fid7 = '{str(discord_member)}' WHERE fid8 = '{member.discord_userid}'")
+                            # Encode to proper charset and update this users user/discrim in database
+                            encoded_discord_member = str(discord_member).encode(config['DB']['CHARSET'])
+                            cur.execute("UPDATE mybb_rmbj_userfields SET fid7 = %s WHERE fid8 = %s", (encoded_discord_member, member.discord_userid))
                         
                         break
                 

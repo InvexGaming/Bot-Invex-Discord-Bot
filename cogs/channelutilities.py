@@ -26,7 +26,7 @@ class ChannelUtilities:
         self.non_alphanumeric_pattern = re.compile('[^a-zA-Z0-9_ ]+', re.UNICODE)
         self.alphanumeric_pattern = re.compile('[a-zA-Z0-9_ ]+', re.UNICODE)
         
-        self.Info = namedtuple('Info', 'ctx author channel expiry')
+        self.Info = namedtuple('Info', 'ctx author channel_id expiry')
         
         # Initialises a Dictionary of lists for each guild
         for guild in self.bot.guilds:
@@ -152,7 +152,7 @@ class ChannelUtilities:
                 
                 #Adds channel to list
                 expiry = datetime.datetime.utcnow() + datetime.timedelta(0, time * 60)
-                voice_info = self.Info(ctx, author, voice_channel, expiry)
+                voice_info = self.Info(ctx, author, voice_channel.id, expiry)
                 self.voice_channels[guild].append(voice_info)
             
             # Handle Text Channel
@@ -199,7 +199,7 @@ class ChannelUtilities:
                 
                 #Adds channel to list
                 expiry = datetime.datetime.utcnow() + datetime.timedelta(0, time * 60)
-                text_info = self.Info(ctx, author, text_channel, expiry)
+                text_info = self.Info(ctx, author, text_channel.id, expiry)
                 self.text_channels[guild].append(text_info)
                 
         except discord.errors.Forbidden:
@@ -215,34 +215,38 @@ class ChannelUtilities:
                 for info in self.voice_channels[guild]:
                     now = datetime.datetime.utcnow()
                     
+                    channel = guild.get_channel(info.channel_id)
+                    
                     # Handle manually deleted channels
-                    if info.channel is None or info.channel not in guild.channels:
+                    if channel is None or channel not in guild.channels:
                         self.voice_channels[guild].remove(info)
                         self.voice_users[guild].remove(info.author.id)
                     
                     elif info.expiry < now: # channel expired
                         # Ignore if voice channel if it has members
-                        if info.channel.members:
+                        if channel.members:
                             continue
                             
                         # Delete info and channel
                         self.voice_channels[guild].remove(info)
                         self.voice_users[guild].remove(info.author.id)
-                        await info.channel.delete()
+                        await channel.delete()
                         await info.ctx.send(info.author.mention + " your temporary voice channel has expired.")
                         
                 # Check all text channels
                 for info in self.text_channels[guild]:
                     now = datetime.datetime.utcnow()
                     
+                    channel = guild.get_channel(info.channel_id)
+                    
                     # Handle manually deleted channels
-                    if info.channel is None or info.channel not in guild.channels:
+                    if channel is None or channel not in guild.channels:
                         self.text_channels[guild].remove(info)
                         self.text_users[guild].remove(info.author.id)
                     
                     elif info.expiry < now: # channel expired
                         # Ignore if text channel recently active
-                        last_message = await info.channel.history(limit=1).flatten()
+                        last_message = await channel.history(limit=1).flatten()
                          
                         if len(last_message) > 0:
                             seconds_since = (now - last_message[0].created_at).total_seconds()
@@ -252,7 +256,7 @@ class ChannelUtilities:
                         # Delete info and channel
                         self.text_channels[guild].remove(info)
                         self.text_users[guild].remove(info.author.id)
-                        await info.channel.delete()
+                        await channel.delete()
                         await info.ctx.send(info.author.mention + " your temporary text channel has expired.")
                 
                 # Sleep
@@ -271,10 +275,11 @@ class ChannelUtilities:
             # Delete your temp channel
             if ctx.author.id in self.voice_users[ctx.guild]:
                 for info in self.voice_channels[ctx.guild]:
+                    channel = ctx.guild.get_channel(info.channel_id)
                     if info.author == ctx.author:
                         self.voice_channels[ctx.guild].remove(info)
                         self.voice_users[ctx.guild].remove(info.author.id)
-                        await info.channel.delete() # delete channel
+                        await channel.delete() # delete channel
                         await ctx.send('`Your temporary voice channel has been deleted.`')
             else:
                 await ctx.send("`You don't currently have a temporary voice channel!`")
@@ -283,10 +288,11 @@ class ChannelUtilities:
             # Delete your temp channel
             if ctx.author.id in self.text_users[ctx.guild]:
                 for info in self.text_channels[ctx.guild]:
+                    channel = ctx.guild.get_channel(info.channel_id)
                     if info.author == ctx.author:
                         self.text_channels[ctx.guild].remove(info)
                         self.text_users[ctx.guild].remove(info.author.id)
-                        await info.channel.delete() # delete channel
+                        await channel.delete() # delete channel
                         await ctx.send('`Your temporary text channel has been deleted.`')
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
@@ -304,9 +310,10 @@ class ChannelUtilities:
             # Set allowed users in channel
             if ctx.author.id in self.voice_users[ctx.guild]:
                 for info in self.voice_channels[ctx.guild]:
+                    channel = ctx.guild.get_channel(info.channel_id)
                     if info.author == ctx.author:
                         for user in users:
-                            await info.channel.set_permissions(user, connect=True)
+                            await channel.set_permissions(user, connect=True)
                         await ctx.send("`Voice channel permissions added for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
             else:
                 await ctx.send("`You don't currently have a temporary voice channel!`")
@@ -315,9 +322,10 @@ class ChannelUtilities:
             # Set allowed users in channel
             if ctx.author.id in self.text_users[ctx.guild]:
                 for info in self.text_channels[ctx.guild]:
+                    channel = ctx.guild.get_channel(info.channel_id)
                     if info.author == ctx.author:
                         for user in users:
-                            await info.channel.set_permissions(user, read_messages=True)
+                            await channel.set_permissions(user, read_messages=True)
                         await ctx.send("`Text channel permissions added for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
@@ -335,11 +343,12 @@ class ChannelUtilities:
             # Set allowed users in channel
             if ctx.author.id in self.voice_users[ctx.guild]:
                 for info in self.voice_channels[ctx.guild]:
+                    channel = ctx.guild.get_channel(info.channel_id)
                     if info.author == ctx.author:
                         for user in users:
-                            await info.channel.set_permissions(user, connect=False)
+                            await channel.set_permissions(user, connect=False)
                             # Move user out of voice channel to a default voice channel if they are currently connected
-                            if user.voice is not None and user.voice.channel == info.channel:
+                            if user.voice is not None and user.voice.channel == channel:
                                 default_voice_channel = ctx.guild.get_channel(int(config['CHANNELUTILITIES']['DEFAULT_VOICE_CHANNEL_ID']))
                                 await user.move_to(default_voice_channel)
                         await ctx.send("`Voice channel permissions removed for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
@@ -350,13 +359,60 @@ class ChannelUtilities:
             # Set allowed users in channel
             if ctx.author.id in self.text_users[ctx.guild]:
                 for info in self.text_channels[ctx.guild]:
+                    channel = ctx.guild.get_channel(info.channel_id)
                     if info.author == ctx.author:
                         for user in users:
-                            await info.channel.set_permissions(user, read_messages=False)
+                            await channel.set_permissions(user, read_messages=False)
                         await ctx.send("`Text channel permissions removed for " + ", ".join([mention.name for mention in ctx.message.mentions]) + "`")
             else:
                 await ctx.send("`You don't currently have a temporary text channel!`")
 
+    
+    @checks.chcreate_or_permissions(manage_channels=True)
+    @channel.command(aliases=['lu'])
+    @checks.no_pm()
+    async def listusers(self, ctx, type : str, *, name : str):
+        """List all users that are a part of a specific temporary channel"""
+        if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
+            await ctx.send("`Type must be either 'voice', 'text', or 'both'.`")
+            return
+        
+        voice_found = False
+        text_found = False
+        
+        if type in ('voice', 'v', 'both', 'b'):
+            for info in self.voice_channels[ctx.guild]:
+                channel = ctx.guild.get_channel(info.channel_id)
+                
+                # Perform lowercase string contains check
+                if name.lower() in channel.name.lower():
+                    # Get userlist of all members with connect permission
+                    userlist = list(filter(lambda t: isinstance(t[0], discord.Member) and t[1].pair()[0].connect, channel.overwrites))
+                    
+                    # Print user list
+                    await ctx.send(f"`Voice channel \'{channel.name}\' list of users: " + ", ".join([user.display_name for user, _ in userlist]) + "`")
+                    
+                    voice_found = True
+                    
+            if not voice_found:
+                await ctx.send("`Failed to find a matching temporary voice channel.`")
+                    
+        if type in ('text', 't', 'both', 'b'):
+            for info in self.text_channels[ctx.guild]:
+                channel = ctx.guild.get_channel(info.channel_id)
+                
+                # Perform lowercase string contains check
+                if name.lower() in channel.name.lower():
+                    # Get userlist of all members with read_messages permission
+                    userlist = list(filter(lambda t: isinstance(t[0], discord.Member) and t[1].pair()[0].read_messages, channel.overwrites))
+                    
+                    # Print user list
+                    await ctx.send(f"`Text channel \'{channel.name}\' list of users: " + ", ".join([user.display_name for user, _ in userlist]) + "`")
+                    
+                    text_found = True
+            
+            if not text_found:
+                await ctx.send("`Failed to find a matching temporary text channel.`")
     
     @checks.chcreate_or_permissions(manage_channels=True)
     @channel.command(aliases=['co'])
@@ -372,9 +428,10 @@ class ChannelUtilities:
         
         if type in ('voice', 'v', 'both', 'b'):
             for info in self.voice_channels[ctx.guild]:
+                channel = ctx.guild.get_channel(info.channel_id)
                 # Perform lowercase string contains check
-                if name.lower() in info.channel.name.lower():
-                    await ctx.send(f'`Voice channel \'{info.channel.name}\' is owned by: {info.author.display_name} ({info.author.name}#{info.author.discriminator})`')
+                if name.lower() in channel.name.lower():
+                    await ctx.send(f'`Voice channel \'{channel.name}\' is owned by: {info.author.display_name} ({info.author.name}#{info.author.discriminator})`')
                     voice_found = True
                     
             if not voice_found:
@@ -382,18 +439,22 @@ class ChannelUtilities:
     
         if type in ('text', 't', 'both', 'b'):
             for info in self.text_channels[ctx.guild]:
+                channel = ctx.guild.get_channel(info.channel_id)
                 # Perform lowercase string contains check
-                if name.lower() in info.channel.name.lower():
-                    await ctx.send(f'`Text channel \'{info.channel.name}\' is owned by: {info.author.display_name} ({info.author.name}#{info.author.discriminator})`')
+                if name.lower() in channel.name.lower():
+                    await ctx.send(f'`Text channel \'{channel.name}\' is owned by: {info.author.display_name} ({info.author.name}#{info.author.discriminator})`')
                     text_found = True
                     
             if not text_found:
                 await ctx.send("`Failed to find a matching temporary text channel.`")
     
+    
+    
     @create.error
     @delete.error
     @setusers.error
     @removeusers.error
+    @listusers.error
     @checkowner.error
     async def generic_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):

@@ -36,7 +36,7 @@ class admincommands:
             return m.pinned == False
 
         await ctx.message.channel.purge(limit=(number+1), check=is_pinned)
-        await ctx.send(f'`{number} messages purged!`')
+        await ctx.send(f'`{number} messages purged!`', delete_after=10)
 
     @commands.command(hidden=True)
     @checks.is_owner()
@@ -46,7 +46,7 @@ class admincommands:
             return m.author == user
 
         await ctx.message.channel.purge(limit=(number+1), check=is_user)
-        await ctx.send(f'`{number} messages purged!`')
+        await ctx.send(f'`{number} messages purged!`', delete_after=10)
 
     
     @commands.command(hidden=True)

@@ -70,6 +70,7 @@ class MembersCog:
             member = ctx.author
         
         await ctx.send(f"**{member.display_name}'s avatar URL:**\n{member.avatar_url}")
+  
         
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case MembersCog.
 # When we load the cog, we use the name of the file.
