@@ -16,7 +16,7 @@ class RandomDiscordGame:
     async def update_discord_game(self, bot):
         await bot.wait_until_ready()
         while not bot.is_closed():
-            await bot.change_presence(game=discord.Game(name=choice(self.discordGames)))
+            await bot.change_presence(activity=discord.Game(name=choice(self.discordGames)))
             await asyncio.sleep(10*60) #10 minutes
     
 def setup(bot):

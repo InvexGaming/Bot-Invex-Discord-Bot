@@ -1,6 +1,10 @@
 from discord.ext import commands
 import discord.utils
 
+# Get Config
+import config
+config = config.GetConfig()
+
 def is_owner_check(message):
     return message.author.id in [365795952767795201, 356003102169759755, 101786275568164864, 361542628015079426]
 
@@ -120,6 +124,14 @@ def no_pm():
         return True
     return commands.check(predicate)
 
+def commandschat_channel():
+    def predicate(ctx):
+        commandschat_channel = ctx.guild.get_channel(int(config['DEFAULT']['COMMANDSCHAT_CHANNEL_ID']))
+        if ctx.channel.id != commandschat_channel.id:
+            raise ChannelError(f"`You can only use this command in the` {commandschat_channel.mention} `text channel.`")
+        return True
+    return commands.check(predicate)    
+    
 class ChannelError(commands.CommandError):
     def __init__(self, message):
         self.__message__ = message

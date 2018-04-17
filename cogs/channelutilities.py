@@ -39,6 +39,7 @@ class ChannelUtilities:
             
     @commands.group(aliases=['ch'])
     @checks.no_pm()
+    @checks.commandschat_channel()
     async def channel(self, ctx):
         """Used to manage temporary channels"""
         # For help on channel commands, use: help channel
@@ -49,6 +50,7 @@ class ChannelUtilities:
     @checks.chcreate_or_permissions(manage_channels=True)
     @channel.command(aliases=['cr'])
     @checks.no_pm()
+    @checks.commandschat_channel()
     async def create(self, ctx, type : str, time : str, limit : str, *, name : str):
         """Creates temporary voice/text channels
         Parameters:
@@ -265,6 +267,7 @@ class ChannelUtilities:
     @checks.chcreate_or_permissions(manage_channels=True)
     @channel.command(aliases=['del'])
     @checks.no_pm()
+    @checks.commandschat_channel()
     async def delete(self, ctx, type : str):
         """Delete temporary voice/text channels"""
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
@@ -300,6 +303,7 @@ class ChannelUtilities:
     @checks.chcreate_or_permissions(manage_channels=True)
     @channel.command(aliases=['su'])
     @checks.no_pm()
+    @checks.commandschat_channel()
     async def setusers(self, ctx, type : str, *users: discord.Member):
         """Give others permissions to join your temporary channel"""
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
@@ -333,6 +337,7 @@ class ChannelUtilities:
     @checks.chcreate_or_permissions(manage_channels=True)
     @channel.command(aliases=['ru'])
     @checks.no_pm()
+    @checks.commandschat_channel()
     async def removeusers(self, ctx, type : str, *users: discord.Member):
         """Remove others permissions to join your temporary channel"""
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
@@ -371,6 +376,7 @@ class ChannelUtilities:
     @checks.chcreate_or_permissions(manage_channels=True)
     @channel.command(aliases=['lu'])
     @checks.no_pm()
+    @checks.commandschat_channel()
     async def listusers(self, ctx, type : str, *, name : str):
         """List all users that are a part of a specific temporary channel"""
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
@@ -417,6 +423,7 @@ class ChannelUtilities:
     @checks.chcreate_or_permissions(manage_channels=True)
     @channel.command(aliases=['co'])
     @checks.no_pm()
+    @checks.commandschat_channel()
     async def checkowner(self, ctx, type : str, *, name : str):
         """Check the owner of a specific temporary channel"""
         if type not in ('voice', 'v', 'text', 't', 'both', 'b'):
@@ -448,17 +455,25 @@ class ChannelUtilities:
             if not text_found:
                 await ctx.send("`Failed to find a matching temporary text channel.`")
     
-    
-    
+    @channel.error
+    async def local_error_handler(self, ctx, error):
+        if isinstance(error, checks.ChannelError):
+            await ctx.send(str(error), delete_after=10)
+        
     @create.error
     @delete.error
     @setusers.error
     @removeusers.error
     @listusers.error
     @checkowner.error
-    async def generic_handler(self, ctx, error):
+    async def local_error_handler(self, ctx, error):
+        
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send("`You did not provide the '" + error.param.name + "' parameter.`")
+        
+        if isinstance(error, checks.ChannelError):
+            await ctx.send(str(error), delete_after=10)
+        
     
 def setup(bot):
     bot.add_cog(ChannelUtilities(bot))
