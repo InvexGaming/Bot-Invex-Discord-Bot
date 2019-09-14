@@ -35,7 +35,7 @@ class GameTracker:
                 # Output embed
                 try:
                     with async_timeout.timeout(30):
-                        async with self.session.get('https://www.invexgaming.com.au/serverlist.php') as response:
+                        async with self.session.get('https://invex.gg/serverlist.php') as response:
                             page = await response.text()
                 except asyncio.TimeoutError:
                     # Timeout and try again later on error
@@ -53,7 +53,7 @@ class GameTracker:
                     player = players[0]
 
                     embed = discord.Embed(colour=discord.Colour(0xa31e13), description=f"**IP:** {serverip[0]}\n**Players:** {player[4:9]}\n**Map:** {servermap[0]}\n\n[**Connect**](steam://connect/{serverip[0]})")
-                    embed.set_author(name=servername[0], icon_url="https://www.invexgaming.com.au/images/logo/logo_outline_small.png")
+                    embed.set_author(name=servername[0], icon_url="https://invex.gg/images/logo/logo_outline_small.png")
                     embed.set_footer(text="Invex Gaming")
                     await serverstatus_channel.send(embed=embed)
                 
