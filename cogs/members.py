@@ -37,7 +37,9 @@ class MembersCog:
         if member is None:
             member = ctx.author
 
-        await ctx.send(f'The top role for {member.display_name} is {member.top_role.name}')
+        top_role_name =  member.top_role.name if member.top_role.name != '@everyone' else 'Default Role'
+        
+        await ctx.send(f'The top role for {member.display_name} is {top_role_name}')
     
     @commands.command(name='perms', aliases=['perms_for', 'permissions'])
     @commands.guild_only()
