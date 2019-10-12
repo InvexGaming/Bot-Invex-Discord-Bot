@@ -39,6 +39,12 @@ class InvexForumSync:
                                    charset=config['DB']['CHARSET'])
             cur = conn.cursor()
             
+            # Enforce UTF-8 for the connection.
+            if config['DB']['CHARSET'].lower() == "utf8":
+                cur.execute('SET NAMES utf8mb4')
+                cur.execute("SET CHARACTER SET utf8mb4")
+                cur.execute("SET character_set_connection=utf8mb4")
+            
             # Fetch username, usergroups, additionalgroups and fid7 (discord tag in user#discrim format)
             cur.execute("""SELECT u.username, u.usergroup, u.additionalgroups, uf.fid7, uf.fid8
                             FROM mybb_rmbj_users u
