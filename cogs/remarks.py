@@ -6,7 +6,7 @@ import re
 from random import choice
 from .utils import checks
 
-class Remarks:
+class Remarks(commands.Cog):
 
     """ev0ked's Remarks Cog"""
     

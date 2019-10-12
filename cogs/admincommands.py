@@ -10,7 +10,7 @@ config = config.GetConfig()
 
 """A cog which allows owners echo text via the bot"""
 
-class admincommands:
+class admincommands(commands.Cog):
     """Administrator commands (not for Forgotten)"""
     
     def __init__(self, bot):

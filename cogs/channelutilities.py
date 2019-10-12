@@ -11,7 +11,7 @@ from .utils import checks
 import config
 config = config.GetConfig()
 
-class ChannelUtilities:
+class ChannelUtilities(commands.Cog):
 
     """Text and Voice Channel utilities."""
 

@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from .utils import checks
 
-class CogTools:
+class CogTools(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
@@ -11,7 +11,7 @@ class CogTools:
     # Hidden means it won't show up on the default help.
     @commands.command(name='load', hidden=True)
     @checks.is_owner()
-    async def cog_load(self, ctx, *, cog: str):
+    async def cogtools_load(self, ctx, *, cog: str):
         """Command which Loads a Module.
         Remember to use dot path. e.g: cogs.owner"""
 
@@ -24,7 +24,7 @@ class CogTools:
 
     @commands.command(name='unload', hidden=True)
     @checks.is_owner()
-    async def cog_unload(self, ctx, *, cog: str):
+    async def cogtools_unload(self, ctx, *, cog: str):
         """Command which Unloads a Module.
         Remember to use dot path. e.g: cogs.owner"""
 
@@ -37,7 +37,7 @@ class CogTools:
 
     @commands.command(name='reload', hidden=True)
     @checks.is_owner()
-    async def cog_reload(self, ctx, *, cog: str):
+    async def cogtools_reload(self, ctx, *, cog: str):
         """Command which Reloads a Module.
         Remember to use dot path. e.g: cogs.owner"""
 

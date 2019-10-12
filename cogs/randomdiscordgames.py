@@ -6,7 +6,7 @@ from random import choice
 
 """A cog to change the bots Discord game based on a provided predefined list."""
 
-class RandomDiscordGame:
+class RandomDiscordGame(commands.Cog):
     """RandomDiscordGame"""
 
     def __init__(self, bot):

@@ -16,7 +16,7 @@ class InvexForumMember:
         self.discord_tag = discord_tag
         self.discord_userid = discord_userid
 
-class InvexForumSync:
+class InvexForumSync(commands.Cog):
     """Sync roles on the server based on verified Discord Tags stored in the Invex database"""
     
     def __init__(self, bot):

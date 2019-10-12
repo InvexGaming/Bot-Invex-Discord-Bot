@@ -12,7 +12,7 @@ config = config.GetConfig()
 
 """A cog to post Youtube videos ."""
 
-class Youtube:
+class Youtube(commands.Cog):
     """Youtube"""
     
     def __init__(self, bot):

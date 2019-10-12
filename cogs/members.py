@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from datetime import datetime, timezone
 
-class MembersCog:
+class MembersCog(commands.Cog):
 
     """Useful functions to use on guild members."""
     

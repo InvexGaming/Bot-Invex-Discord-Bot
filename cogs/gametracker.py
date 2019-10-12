@@ -12,7 +12,7 @@ from .utils import checks
 import config
 config = config.GetConfig()
 
-class GameTracker:
+class GameTracker(commands.Cog):
     """GameTracker cog to keep track of server status"""
     
     def __init__(self, bot):
