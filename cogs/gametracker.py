@@ -44,15 +44,25 @@ class GameTracker(commands.Cog):
                 
                 tree = html.fromstring(page)
                 
-                for i in range(1,4):
+                num_servers = tree.xpath(f'//*[@id="serversboard_e"]/tr[4]/td/span[1]/text()')
+                
+                for i in range(1, 3):
                     servername = tree.xpath(f'//*[@id="serversboard_e"]/tr[{i}]/td[4]/span/a/text()')
+                    if not servername:
+                        servername = tree.xpath(f'//*[@id="serversboard_e"]/tr[{i}]/td[4]/span/text()')
+                    
                     serverip = tree.xpath(f'//*[@id="serversboard_e"]/tr[{i}]/td[5]/span/text()')
                     players = tree.xpath(f'//*[@id="serversboard_e"]/tr[{i}]/td[6]/span/div/div/div[2]/center/text()')
                     servermap = tree.xpath(f'//*[@id="serversboard_e"]/tr[{i}]/td[7]/span/text()')
+                    
+                    if not serverip and not players and not servermap:
+                        print("Failed to retrieve all required xpath fields")
+                        await asyncio.sleep(5*60) #5 minutes
+                        continue
 
                     player = players[0]
-
-                    embed = discord.Embed(colour=discord.Colour(0xa31e13), description=f"**IP:** {serverip[0]}\n**Players:** {player[4:9]}\n**Map:** {servermap[0]}\n\n[**Connect**](steam://connect/{serverip[0]})")
+                    
+                    embed = discord.Embed(colour=discord.Colour(0xa31e13), description=f"**IP:** {serverip[0]}\n**Players:** {player}\n**Map:** {servermap[0]}\n\n[**Connect**](http://go.invex.gg/connect?ipport={serverip[0]})")
                     embed.set_author(name=servername[0], icon_url="https://invex.gg/images/logo/logo_outline_small.png")
                     embed.set_footer(text="Invex Gaming")
                     await serverstatus_channel.send(embed=embed)
